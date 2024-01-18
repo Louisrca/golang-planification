@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  database:
+    image: mariadb:10.11.6
+    restart: on-failure
+    ports:
+      - 3310:3306
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: database
+      MARIADB_USER: mysql-database
+      MARIADB_PASSWORD: password
