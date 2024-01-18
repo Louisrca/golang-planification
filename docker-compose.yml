@@ -7,6 +7,6 @@ services:
       - 3310:3306
     environment:
       MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: database
+      MARIADB_DATABASE: db-planning
       MARIADB_USER: mysql-database
       MARIADB_PASSWORD: password
