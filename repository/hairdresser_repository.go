@@ -26,3 +26,63 @@ func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
 
     return hairDressers, nil
 }
+
+func GetHairDresserByID(db *sql.DB, id int) (model.Hairdresser, error) {
+    var u model.Hairdresser
+    err := db.QueryRow("SELECT id, firstname, email FROM hair_dresser WHERE id = ?", id).Scan(&u.ID, &u.FirstName, &u.Email)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return u, err
+    }
+
+    return u, nil
+}
+
+func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (int64, error) {
+    result, err := db.Exec("INSERT INTO hair_dresser (firstname, email) VALUES (?, ?)", hairDresser.FirstName, hairDresser.Email)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return 0, err
+    }
+
+    id, err := result.LastInsertId()
+    if err != nil {
+        log.Printf("Erreur lors de la récupération de LastInsertId: %v", err)
+        return 0, err
+    }
+
+    return id, nil
+}
+
+
+func UpdateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (int64, error) {
+    result, err := db.Exec("UPDATE hair_dresser SET firstname = ?, email = ? WHERE id = ?", hairDresser.FirstName, hairDresser.Email, hairDresser.ID)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return 0, err
+    }
+
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        log.Printf("Erreur lors de la récupération de RowsAffected: %v", err)
+        return 0, err
+    }
+
+    return rowsAffected, nil
+}
+
+func DeleteHairDresser(db *sql.DB, id int) (int64, error) {
+    result, err := db.Exec("DELETE FROM hair_dresser WHERE id = ?", id)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return 0, err
+    }
+
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        log.Printf("Erreur lors de la récupération de RowsAffected: %v", err)
+        return 0, err
+    }
+
+    return rowsAffected, nil
+}
