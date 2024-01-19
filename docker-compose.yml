@@ -1,5 +1,24 @@
-version: '3.8'
+version: "3.8"
 services:
+  golang-planification-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: golang:alpine
+    restart: on-failure
+    depends_on:
+      - database
+    links:
+      - database
+    volumes:
+      - .:/go/src/golang-planification
+    working_dir: /go/src/golang-planification
+    expose:
+      - 80
+    command: sh -c "go run main/*.go "
+    ports:
+      - 80:80
+
   database:
     image: mariadb
     restart: on-failure
