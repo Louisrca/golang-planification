@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"api-planning/internal/api/server"
+	server "api-planning/internal/api/server"
 )
 
 func main() {
