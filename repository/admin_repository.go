@@ -3,7 +3,6 @@ package repository
 import (
 	"api-planning/model"
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/google/uuid"
@@ -40,24 +39,28 @@ func GetAdminById(db *sql.DB, id int) (model.Admin, error) {
 	return admin, nil
 }
 
-func CreateAdmin(db *sql.DB, admin model.Admin) (int64, error) {
-	uuid := uuid.New();
-	result, err := db.Exec("INSERT INTO admin (id, firstname,lastname, email, password) VALUES (?,?, ?, ?,?)", uuid.String(),admin.FirstName, admin.LastName, admin.Email, admin.Password)
-	if err != nil {
-		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return 0, err
-	}
-	
+func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
+    // Génération d'un nouveau UUID
+    uuid := uuid.New()
 
-	 id, err := result.RowsAffected()
-	 fmt.Println("ceci est l'id", id)
-	if err != nil {
-        log.Printf("Erreur lors de la récupération de LastInsertId: %v", err)
-        return 0, err
+    // Insertion de l'admin dans la base de données
+    _, err := db.Exec("INSERT INTO admin (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)", 
+                      uuid.String(), admin.FirstName, admin.LastName, admin.Email, admin.Password)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return model.Admin{}, err
     }
+    // Mise à jour de l'ID de l'objet admin
+    admin.ID = uuid.String()
+    // Ici, vous pouvez choisir de retourner l'objet admin tel quel
+    // ou de faire une requête supplémentaire pour récupérer toutes les données
+    // de l'admin à partir de la base de données si nécessaire.
 
-    return id, nil
+    return admin, nil
 }
+
+
+
 
 func UpdateAdmin(db *sql.DB, admin model.Admin) (int64, error) {
 	result, err := db.Exec("UPDATE admin SET firstname = ?, email = ? WHERE id = ?", admin.FirstName, admin.Email, admin.ID)
