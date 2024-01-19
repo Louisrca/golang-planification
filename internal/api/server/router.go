@@ -1,13 +1,12 @@
 package router
 
-
 import (
+	controller "api-planning/internal/api/controller"
 	"database/sql"
 	"net/http"
-	controller "api-planning/internal/api/controller"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-
 )
 
 
@@ -23,16 +22,6 @@ func NewRouter(db *sql.DB) *chi.Mux {
         w.Write([]byte("Bienvenue sur notre serveur !"))
     })
 
-	
-	
-	
-	
-	
-	
-	
-
-
-
 	// admin routes
 	r.Get("/admin", controller.FetchAdmin(db))
 	r.Post(("/admin/add"), controller.CreateAdminHandler(db))
@@ -40,7 +29,6 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Post(("/admin/delete"), controller.DeleteAdminHandler(db))
 
 	// booking routes
-
 	r.Get("/booking", controller.FetchBooking(db))
 	r.Post(("/booking/add"), controller.CreateBookingHandler(db))
 	r.Post(("/booking/update"), controller.UpdateBookingHandler(db))
@@ -54,7 +42,6 @@ func NewRouter(db *sql.DB) *chi.Mux {
 
 
 	// customer routes
-
 	r.Get("/customer", controller.FetchCustomer(db))
 	r.Post(("/customer/add"), controller.CreateCustomerHandler(db))
 	r.Post(("/customer/update"), controller.UpdateCustomerHandler(db))
@@ -84,7 +71,6 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Post(("/service/add"), controller.CreateServiceHandler(db))
 	r.Post(("/service/update"), controller.UpdateServiceHandler(db))
 	r.Post(("/service/delete"), controller.DeleteServiceHandler(db))
-
 
     return r
 }

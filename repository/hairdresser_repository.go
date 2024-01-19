@@ -8,7 +8,7 @@ import (
 )
 
 func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
-    rows, err := db.Query("SELECT id, firstname, email FROM hair_dresser")
+    rows, err := db.Query("SELECT id, firstname, email FROM hairdresser")
      if err != nil {
         log.Printf("Erreur lors de l'exécution de la requête: %v", err)
         return nil, err
@@ -29,7 +29,7 @@ func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
 
 func GetHairDresserByID(db *sql.DB, id int) (model.Hairdresser, error) {
     var u model.Hairdresser
-    err := db.QueryRow("SELECT id, firstname, email FROM hair_dresser WHERE id = ?", id).Scan(&u.ID, &u.FirstName, &u.Email)
+    err := db.QueryRow("SELECT id, firstname, email FROM hairdresser WHERE id = ?", id).Scan(&u.ID, &u.FirstName, &u.Email)
     if err != nil {
         log.Printf("Erreur lors de l'exécution de la requête: %v", err)
         return u, err
@@ -39,7 +39,7 @@ func GetHairDresserByID(db *sql.DB, id int) (model.Hairdresser, error) {
 }
 
 func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (int64, error) {
-    result, err := db.Exec("INSERT INTO hair_dresser (firstname, email) VALUES (?, ?)", hairDresser.FirstName, hairDresser.Email)
+    result, err := db.Exec("INSERT INTO hairdresser (firstname, email) VALUES (?, ?)", hairDresser.FirstName, hairDresser.Email)
     if err != nil {
         log.Printf("Erreur lors de l'exécution de la requête: %v", err)
         return 0, err
@@ -56,7 +56,7 @@ func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (int64, error)
 
 
 func UpdateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (int64, error) {
-    result, err := db.Exec("UPDATE hair_dresser SET firstname = ?, email = ? WHERE id = ?", hairDresser.FirstName, hairDresser.Email, hairDresser.ID)
+    result, err := db.Exec("UPDATE hairdresser SET firstname = ?, email = ? WHERE id = ?", hairDresser.FirstName, hairDresser.Email, hairDresser.ID)
     if err != nil {
         log.Printf("Erreur lors de l'exécution de la requête: %v", err)
         return 0, err
@@ -72,7 +72,7 @@ func UpdateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (int64, error)
 }
 
 func DeleteHairDresser(db *sql.DB, id int) (int64, error) {
-    result, err := db.Exec("DELETE FROM hair_dresser WHERE id = ?", id)
+    result, err := db.Exec("DELETE FROM hairdresser WHERE id = ?", id)
     if err != nil {
         log.Printf("Erreur lors de l'exécution de la requête: %v", err)
         return 0, err
