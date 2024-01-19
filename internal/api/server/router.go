@@ -9,18 +9,17 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-
 func NewRouter(db *sql.DB) *chi.Mux {
-    r := chi.NewRouter()
+	r := chi.NewRouter()
 
-    // Middleware de base, vous pouvez ajouter le vôtre ici
-    r.Use(middleware.Logger)
-    r.Use(middleware.Recoverer)
+	// Middleware de base, vous pouvez ajouter le vôtre ici
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-    // Définir les routes
-    r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-        w.Write([]byte("Bienvenue sur notre serveur !"))
-    })
+	// Définir les routes
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Bienvenue sur notre serveur !"))
+	})
 
 	// admin routes
 	r.Get("/admin", controller.FetchAdmin(db))
@@ -40,19 +39,17 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Put(("/category/update"), controller.UpdateCategoryHandler(db))
 	r.Delete(("/category/delete"), controller.DeleteCategoryHandler(db))
 
-
 	// customer routes
 	r.Get("/customer", controller.FetchCustomer(db))
 	r.Post(("/customer/add"), controller.CreateCustomerHandler(db))
-	r.Put(("/customer/update"), controller.UpdateCustomerHandler(db))
-	r.Delete(("/customer/delete"), controller.DeleteCustomerHandler(db))
+	r.Put(("/customer/update/{id}"), controller.UpdateCustomerHandler(db))
+	r.Delete(("/customer/delete/{id}"), controller.DeleteCustomerHandler(db))
 
 	// hair_salon routes
 	r.Get("/hair_salon", controller.FetchHairSalon(db))
 	r.Post(("/hair_salon/add"), controller.CreateHairSalonHandler(db))
 	r.Put(("/hair_salon/update"), controller.UpdateHairSalonHandler(db))
 	r.Delete(("/hair_salon/delete"), controller.DeleteHairSalonHandler(db))
-
 
 	// hairdresser routes
 	r.Get("/hairdresser", controller.FetchHairDresser(db))
@@ -72,5 +69,5 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Put(("/service/update"), controller.UpdateServiceHandler(db))
 	r.Delete(("/service/delete"), controller.DeleteServiceHandler(db))
 
-    return r
+	return r
 }
