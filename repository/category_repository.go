@@ -4,6 +4,8 @@ import (
 	"api-planning/model"
 	"database/sql"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 func GetCategory(db *sql.DB) ([]model.Category, error) {
@@ -26,7 +28,7 @@ func GetCategory(db *sql.DB) ([]model.Category, error) {
 	return category, nil
 }
 
-func GetCategoryByID(db *sql.DB, id int) (model.Category, error) {
+func GetCategoryByID(db *sql.DB, id string) (model.Category, error) {
 	var category model.Category
 	err := db.QueryRow("SELECT id, name FROM category WHERE id = ?", id).Scan(&category.ID, &category.Name)
 	if err != nil {
@@ -37,41 +39,31 @@ func GetCategoryByID(db *sql.DB, id int) (model.Category, error) {
 	return category, nil
 }
 
-func CreateCategory(db *sql.DB, category model.Category) (int64, error) {
+func CreateCategory(db *sql.DB, category model.Category) (model.Category, error) {
 
-	query := `INSERT INTO category (name) VALUES (?)`
-	result, err := db.Exec(query, category.Name)
+	uuid := uuid.New()
+	_, err := db.Exec(`INSERT INTO  category (id, name) VALUES (?,?)`, uuid.String(),category.Name)
+	
 	if err != nil {
-		log.Printf("Erreur lors de l'insertion de la réservation: %v", err)
+		log.Printf("Erreur lors de l'insértion de la catégorie : %v", err)
+		return model.Category{}, err
 	}
-	id, err := result.LastInsertId()
-
-	if err != nil {
-		log.Printf("Erreur lors de la récupération de LastInsertId: %v", err)
-		return 0, err
-
-	}
-	return id, nil
+	return category, nil
 }
 
-func UpdateCategory(db *sql.DB, category model.Category) (int64, error) {
+func UpdateCategory(db *sql.DB, category model.Category) (model.Category, error) {
 
-	query := `UPDATE category SET name = ? WHERE id = ?`
-	result, err := db.Exec(query, category.Name, category.ID)
-	if err != nil {
-		log.Printf("Erreur lors de l'insertion de la category: %v", err)
-		return 0, err
-	}
-	id, err := result.RowsAffected()
 
+	_, err := db.Exec(`UPDATE category SET name = ? WHERE id = ?`, category.Name, category.ID)
 	if err != nil {
-		log.Printf("Erreur lors de la récupération de LastInsertId: %v", err)
-	}
-	return id, nil
+        log.Printf("Erreur lors de la mise à jour de la réservation: %v", err)
+        return model.Category{}, err
+    }
+    return category, nil
 }
 
 
-func DeleteCategory(db *sql.DB, categoryID int) error {
+func DeleteCategory(db *sql.DB, categoryID string) error {
     query := `DELETE FROM category WHERE id = ?`
     _, err := db.Exec(query, categoryID)
     if err != nil {

@@ -52,21 +52,21 @@ func CreateBooking(db *sql.DB, booking model.Booking) (model.Booking, error) {
     return booking, nil
 }
 
-func UpdateBooking(db *sql.DB, updatedBooking model.Booking) (model.Booking, error) {
+func UpdateBooking(db *sql.DB, booking model.Booking) (model.Booking, error) {
 
-    _, err := db.Exec(`UPDATE booking SET customer_id = ?, service_id = ?, slot_id = ?, is_confirmed = ? WHERE id = ?`, updatedBooking.CustomerID, updatedBooking.ServiceID, updatedBooking.SlotID, updatedBooking.IsConfirmed, updatedBooking.ID)
+    _, err := db.Exec(`UPDATE booking SET customer_id = ?, service_id = ?, slot_id = ?, is_confirmed = ? WHERE id = ?`, booking.CustomerID, booking.ServiceID, booking.SlotID, booking.IsConfirmed, booking.ID)
     if err != nil {
         log.Printf("Erreur lors de la mise à jour de la réservation: %v", err)
         return model.Booking{},err
     }
-    return updatedBooking, nil
+    return booking, nil
 }
 
 
 
 func DeleteBooking(db *sql.DB, bookingID string) error {
-    query := `DELETE FROM booking WHERE id = ?`
-    _, err := db.Exec(query, bookingID)
+
+    _, err := db.Exec(`DELETE FROM booking WHERE id = ?`, bookingID)
     if err != nil {
         log.Printf("Erreur lors de la suppression de la réservation: %v", err)
         return err

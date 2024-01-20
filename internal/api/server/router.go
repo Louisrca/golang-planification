@@ -37,9 +37,10 @@ func NewRouter(db *sql.DB) *chi.Mux {
 
 	// category routes
 	r.Get("/category", controller.FetchCategory(db))
+	r.Get("/category/{id}", controller.FetchCategoryById(db))
 	r.Post(("/category/add"), controller.CreateCategoryHandler(db))
-	r.Put(("/category/update"), controller.UpdateCategoryHandler(db))
-	r.Delete(("/category/delete"), controller.DeleteCategoryHandler(db))
+	r.Put(("/category/update/{id}"), controller.UpdateCategoryHandler(db))
+	r.Delete(("/category/delete/{id}"), controller.DeleteCategoryHandler(db))
 
 	// customer routes
 	r.Get("/customer", controller.FetchCustomer(db))
