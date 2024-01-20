@@ -19,7 +19,7 @@ func GetAdmin(db *sql.DB) ([]model.Admin, error) {
     var admins []model.Admin
     for rows.Next() {
         var u model.Admin
-        if err := rows.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email); err != nil {
+        if err := rows.Scan(&u.ID, &u.Firstname, &u.Lastname, &u.Email); err != nil {
             return nil, err
         }
         admins = append(admins, u)
@@ -28,9 +28,9 @@ func GetAdmin(db *sql.DB) ([]model.Admin, error) {
     return admins, nil
 }
 
-func GetAdminById(db *sql.DB, id int) (model.Admin, error) {
+func GetAdminById(db *sql.DB, id string) (model.Admin, error) {
 	var admin model.Admin
-	err := db.QueryRow("SELECT id, firstname, lastname, email FROM admin WHERE id = ?", id).Scan(&admin.ID, &admin.FirstName, &admin.LastName, &admin.Email)
+	err := db.QueryRow("SELECT id, firstname, lastname, email FROM admin WHERE id = ?", id).Scan(&admin.ID, &admin.Firstname, &admin.Lastname, &admin.Email)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 		return admin, err
@@ -40,21 +40,17 @@ func GetAdminById(db *sql.DB, id int) (model.Admin, error) {
 }
 
 func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
-    // Génération d'un nouveau UUID
+
     uuid := uuid.New()
 
-    // Insertion de l'admin dans la base de données
     _, err := db.Exec("INSERT INTO admin (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)", 
-                      uuid.String(), admin.FirstName, admin.LastName, admin.Email, admin.Password)
+                      uuid.String(), admin.Firstname, admin.Lastname, admin.Email, admin.Password)
     if err != nil {
         log.Printf("Erreur lors de l'exécution de la requête: %v", err)
         return model.Admin{}, err
     }
-    // Mise à jour de l'ID de l'objet admin
+
     admin.ID = uuid.String()
-    // Ici, vous pouvez choisir de retourner l'objet admin tel quel
-    // ou de faire une requête supplémentaire pour récupérer toutes les données
-    // de l'admin à partir de la base de données si nécessaire.
 
     return admin, nil
 }
@@ -62,24 +58,24 @@ func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
 
 
 
-func UpdateAdmin(db *sql.DB, admin model.Admin) (int64, error) {
-	result, err := db.Exec("UPDATE admin SET firstname = ?, email = ? WHERE id = ?", admin.FirstName, admin.Email, admin.ID)
+func UpdateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
+
+	_, err := db.Exec("UPDATE admin SET firstname = ?, lastname = ?, email = ?, password = ? WHERE id = ?", admin.Firstname, admin.Lastname, admin.Email, admin.Password, admin.ID)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return 0, err
+		return model.Admin{}, err
 	}
-
-	return result.RowsAffected()
+	return admin, nil
 }
 
 
-func DeleteAdmin(db *sql.DB, id int) (int64, error) {
-	
-	result, err := db.Exec("DELETE FROM admin WHERE id = ?", id)
+func DeleteAdmin(db *sql.DB, id string) (model.Admin, error) {
+	var admin model.Admin
+	_, err := db.Exec("DELETE FROM admin WHERE id = ?", id)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return 0, err
+		return model.Admin{}, err
 	}
 	
-	return result.RowsAffected()
+	return admin, nil
 }

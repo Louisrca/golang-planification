@@ -23,9 +23,10 @@ func NewRouter(db *sql.DB) *chi.Mux {
 
 	// admin routes
 	r.Get("/admin", controller.FetchAdmin(db))
+	r.Get("/admin/{id}",controller.FetchAdminById(db))
 	r.Post(("/admin/add"), controller.CreateAdminHandler(db))
-	r.Put(("/admin/update"), controller.UpdateAdminHandler(db))
-	r.Delete(("/admin/delete"), controller.DeleteAdminHandler(db))
+	r.Put(("/admin/update/{id}"), controller.UpdateAdminHandler(db))
+	r.Delete(("/admin/delete/{id}"), controller.DeleteAdminHandler(db))
 
 	// booking routes
 	r.Get("/booking", controller.FetchBooking(db))
