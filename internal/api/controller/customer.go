@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 func FetchCustomer(db *sql.DB) http.HandlerFunc {
@@ -26,17 +25,16 @@ func FetchCustomer(db *sql.DB) http.HandlerFunc {
 
 func FetchCustomerById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Query().Get("id")
-		customerID, err := strconv.Atoi(id)
-		if err != nil {
-			log.Printf("Erreur lors de la récupération de l'ID de l'admin: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			log.Printf("ID manquant dans l'URL")
+			http.Error(w, "ID manquant", http.StatusBadRequest)
 			return
 		}
 
-		customer, err := customer_repository.GetCustomerByID(db, customerID)
+		customer, err := customer_repository.GetCustomerByID(db, id)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération de l'admin: %v", err)
+			log.Printf("Erreur lors de la récupération du client: %v", err)
 			http.Error(w, http.StatusText(500), 500)
 			return
 		}
