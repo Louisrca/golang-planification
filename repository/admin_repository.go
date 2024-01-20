@@ -50,8 +50,6 @@ func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
         return model.Admin{}, err
     }
 
-    admin.ID = uuid.String()
-
     return admin, nil
 }
 
@@ -59,7 +57,7 @@ func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
 
 
 func UpdateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
-
+	
 	_, err := db.Exec("UPDATE admin SET firstname = ?, lastname = ?, email = ?, password = ? WHERE id = ?", admin.Firstname, admin.Lastname, admin.Email, admin.Password, admin.ID)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)

@@ -4,6 +4,8 @@ import (
 	"api-planning/model"
 	"database/sql"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 
@@ -27,25 +29,37 @@ func GetBooking(db *sql.DB) ([]model.Booking, error) {
     return bookings, nil
 }
 
+func GetBookingById(db *sql.DB, id string) (model.Booking, error) {
+	var booking model.Booking
+	err := db.QueryRow("SELECT id, customer_id, service_id, slot_id, is_confirmed FROM booking WHERE id = ?", id).Scan(&booking.ID, &booking.CustomerID, &booking.ServiceID,&booking.SlotID,&booking.IsConfirmed)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return booking, err
+	}
 
-func CreateBooking(db *sql.DB, newBooking model.Booking) error {
-    query := `INSERT INTO booking (id, customer_id, service_id, slot_id, is_confirmed) VALUES (?, ?, ?, ?, ?)`
-    _, err := db.Exec(query, newBooking.ID, newBooking.CustomerID, newBooking.ServiceID, newBooking.SlotID, newBooking.IsConfirmed)
-    if err != nil {
-        log.Printf("Erreur lors de l'insertion de la réservation: %v", err)
-        return err
-    }
-    return nil
+	return booking, nil
 }
 
-func UpdateBooking(db *sql.DB, updatedBooking model.Booking) error {
-    query := `UPDATE booking SET customer_id = ?, service_id = ?, slot_id = ?, is_confirmed = ? WHERE id = ?`
-    _, err := db.Exec(query, updatedBooking.CustomerID, updatedBooking.ServiceID, updatedBooking.SlotID, updatedBooking.IsConfirmed, updatedBooking.ID)
+
+func CreateBooking(db *sql.DB, booking model.Booking) (model.Booking, error) {
+
+    uuid := uuid.New()
+    _, err := db.Exec(`INSERT INTO booking (id, customer_id, service_id, slot_id, is_confirmed) VALUES (?, ?, ?, ?, ?)`, uuid.String(), booking.CustomerID, booking.ServiceID, booking.SlotID, booking.IsConfirmed)
+    if err != nil {
+        log.Printf("Erreur lors de l'insertion de la réservation: %v", err)
+        return model.Booking{}, err
+    }
+    return booking, nil
+}
+
+func UpdateBooking(db *sql.DB, updatedBooking model.Booking) (model.Booking, error) {
+
+    _, err := db.Exec(`UPDATE booking SET customer_id = ?, service_id = ?, slot_id = ?, is_confirmed = ? WHERE id = ?`, updatedBooking.CustomerID, updatedBooking.ServiceID, updatedBooking.SlotID, updatedBooking.IsConfirmed, updatedBooking.ID)
     if err != nil {
         log.Printf("Erreur lors de la mise à jour de la réservation: %v", err)
-        return err
+        return model.Booking{},err
     }
-    return nil
+    return updatedBooking, nil
 }
 
 
