@@ -26,8 +26,8 @@ type HairSalon struct {
 
 type Hairdresser struct {
 	ID          string `json:"id"`
-	FirstName   string `json:"firstname"`
-	LastName    string `json:"lastname"`
+	Firstname   string `json:"firstname"`
+	Lastname    string `json:"lastname"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	StartTime   string `json:"start_time"` // Format HH:MM:SS
