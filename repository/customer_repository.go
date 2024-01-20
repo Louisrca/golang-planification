@@ -28,7 +28,7 @@ func GetCustomer(db *sql.DB) ([]model.Customer, error) {
 	return customers, nil
 }
 
-func GetCustomerByID(db *sql.DB, id int) (model.Customer, error) {
+func GetCustomerByID(db *sql.DB, id string) (model.Customer, error) {
 	var customer model.Customer
 	err := db.QueryRow("SELECT id, firstname, lastname, email FROM customer WHERE id = ?", id).Scan(&customer.ID, &customer.Firstname, &customer.Lastname, &customer.Email)
 	if err != nil {
@@ -62,7 +62,7 @@ func UpdateCustomer(db *sql.DB, customer model.Customer) (model.Customer, error)
 	var updatedCustomer model.Customer
 	err = db.QueryRow("SELECT id, firstname, lastname, email FROM customer WHERE id = ?", customer.ID).Scan(&updatedCustomer.ID, &updatedCustomer.Firstname, &updatedCustomer.Lastname, &updatedCustomer.Email)
 	if err != nil {
-		log.Printf("Erreur lors de la récupération de RowsAffected: %v", err)
+		log.Printf("Erreur lors de l'éxécution de la requête: %v", err)
 		return model.Customer{}, err
 	}
 

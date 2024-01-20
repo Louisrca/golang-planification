@@ -47,21 +47,18 @@ func CreateCustomerHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var customer model.Customer
 
-		// Décoder le corps de la requête en un objet customer
 		err := json.NewDecoder(r.Body).Decode(&customer)
 		if err != nil {
 			http.Error(w, "Requête invalide", http.StatusBadRequest)
 			return
 		}
 
-		// Créer le client dans la base de données
 		customerID, err := customer_repository.CreateCustomer(db, customer)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
 		}
 
-		// Envoyer l'ID du client créé en réponse
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(customerID)
 	}
@@ -79,7 +76,7 @@ func UpdateCustomerHandler(db *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&customer)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération de l'admin: %v", err)
+			log.Printf("Erreur lors de la récupération ddu client : %v", err)
 			http.Error(w, http.StatusText(500), 500)
 			return
 		}

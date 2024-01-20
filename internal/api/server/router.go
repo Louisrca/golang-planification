@@ -48,15 +48,17 @@ func NewRouter(db *sql.DB) *chi.Mux {
 
 	// hair_salon routes
 	r.Get("/hair_salon", controller.FetchHairSalon(db))
+	r.Get("/hair_salon/{id}", controller.FetchHairSalonById(db))
 	r.Post(("/hair_salon/add"), controller.CreateHairSalonHandler(db))
-	r.Put(("/hair_salon/update"), controller.UpdateHairSalonHandler(db))
-	r.Delete(("/hair_salon/delete"), controller.DeleteHairSalonHandler(db))
+	r.Put(("/hair_salon/update/{id}"), controller.UpdateHairSalonHandler(db))
+	r.Delete(("/hair_salon/delete/{id}"), controller.DeleteHairSalonHandler(db))
 
 	// hairdresser routes
 	r.Get("/hairdresser", controller.FetchHairDresser(db))
+	r.Get("/hairdresser/{id}", controller.FetchHairDresserById(db))
 	r.Post(("/hairdresser/add"), controller.CreateHairDresserHandler(db))
-	r.Put(("/hairdresser/update"), controller.UpdateHairDresserHandler(db))
-	r.Delete(("/hairdresser/delete"), controller.DeleteHairDresserHandler(db))
+	r.Put(("/hairdresser/update/{id}"), controller.UpdateHairDresserHandler(db))
+	r.Delete(("/hairdresser/delete/{id}"), controller.DeleteHairDresserHandler(db))
 
 	// slog routes
 	r.Get("/slot", controller.FetchSlot(db))
