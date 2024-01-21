@@ -55,25 +55,58 @@ func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
 
 
 
-
 func UpdateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
-	
-	_, err := db.Exec("UPDATE admin SET firstname = ?, lastname = ?, email = ?, password = ? WHERE id = ?", admin.Firstname, admin.Lastname, admin.Email, admin.Password, admin.ID)
-	if err != nil {
-		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return model.Admin{}, err
-	}
-	return admin, nil
+    _, err := db.Exec("UPDATE admin SET firstname = ?, lastname = ?, email = ?, password = ? WHERE id = ?",
+        admin.Firstname, admin.Lastname, admin.Email, admin.Password, admin.ID)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête de mise à jour: %v", err)
+        return model.Admin{}, err
+    }
+
+    var updatedAdmin model.Admin
+    err = db.QueryRow("SELECT id, firstname, lastname, email, password  FROM admin WHERE id = ?", admin.ID).
+        Scan(&updatedAdmin.ID, &updatedAdmin.Firstname, &updatedAdmin.Lastname, &updatedAdmin.Email, &updatedAdmin.Password)
+    if err != nil {
+        log.Printf("Erreur lors de la récupération des informations mises à jour: %v", err)
+        return model.Admin{}, err
+    }
+
+    return updatedAdmin, nil
 }
 
 
-func DeleteAdmin(db *sql.DB, id string) (model.Admin, error) {
-	var admin model.Admin
-	_, err := db.Exec("DELETE FROM admin WHERE id = ?", id)
-	if err != nil {
-		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return model.Admin{}, err
-	}
+
+
+
+// func DeleteAdmin(db *sql.DB, id string) (model.Admin, error) {
+// 	var admin model.Admin
+// 	_, err := db.Exec("DELETE FROM admin WHERE id = ?", id)
+// 	if err != nil {
+// 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+// 		return model.Admin{}, err
+// 	}
 	
-	return admin, nil
+// 	return admin, nil
+// }
+
+
+
+func DeleteAdmin(db *sql.DB, id string) (model.Admin, error) {
+    var admin model.Admin
+    err := db.QueryRow("DELETE from admin WHERE id= ?", id).Scan(&admin.ID, &admin.Firstname, &admin.Lastname, &admin.Email, &admin.Password)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return model.Admin{}, nil
+        }
+        log.Printf("Erreur lors de la récupération du admin: %v", err)
+        return model.Admin{}, err
+    }
+
+    _, err = db.Exec("DELETE FROM admin WHERE id = ?", id)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête de suppression: %v", err)
+        return model.Admin{}, err
+    }
+
+    return admin, nil
 }

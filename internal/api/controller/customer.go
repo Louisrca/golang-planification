@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	customer_repository "api-planning/repository"
 	"database/sql"
@@ -15,8 +16,7 @@ func FetchCustomer(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		customers, err := customer_repository.GetCustomer(db)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération des clients: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+			utils.HandleError(w,"Erreur lors de la récupération des clients: %v", err, http.StatusInternalServerError)
 			return
 		}
 

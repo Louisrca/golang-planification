@@ -28,14 +28,16 @@ func FetchAdmin(db *sql.DB) http.HandlerFunc {
 func FetchAdminById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
+		// err := utils.FindByID(db, &model.Admin{}, "admin", id)
+	
 		if id == "" {
-			utils.HandleError(w,"ID manquant dans l'URL", nil, http.StatusInternalServerError )
+			utils.HandleError(w,"ID manquant dans l'URL ou ID incorrect", nil, http.StatusInternalServerError )
 			return
 		}
 
 		adminID, err := admin_repository.GetAdminById(db, id)
 		if err != nil {
-			utils.HandleError(w,"Erreur lors de la récupération du coiffeur: %v", err, http.StatusInternalServerError )
+			utils.HandleError(w,"Erreur lors de la récupération du admin: %v", err, http.StatusInternalServerError )
 			return
 		}
 
@@ -69,13 +71,23 @@ func UpdateAdminHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var admin model.Admin
-		err := json.NewDecoder(r.Body).Decode(&admin)
+		id := chi.URLParam(r, "id")
+
+		err := utils.FindByID(db, admin, "admin", id)
+		
+		if id == "" || err == nil  {
+			utils.HandleError(w,"ID manquant dans l'URL", nil, http.StatusInternalServerError)
+			return
+		}
+		err = json.NewDecoder(r.Body).Decode(&admin)
+
 		if err != nil {
-			utils.HandleError(w,"Requête invalide", err, http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la récupération de l'admin", err, http.StatusInternalServerError)
 			return
 		}
 
 		adminID, err := admin_repository.UpdateAdmin(db, admin)
+
 		if err != nil {
 			utils.HandleError(w,"Erreur lors de la mise à jour de l'admin", err, http.StatusInternalServerError)
 			return
