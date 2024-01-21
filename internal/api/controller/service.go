@@ -1,43 +1,39 @@
 package controller
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	service_repository "api-planning/repository"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func FetchService(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		services, err := service_repository.GetService(db)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération des salon: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+			utils.HandleError(w, "Erreur lors de la récupération des services", err, http.StatusInternalServerError)
 			return
 		}
-
 		json.NewEncoder(w).Encode(services)
 	}
 }
 
 func FetchServiceById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Query().Get("id")
-		service_id, err := strconv.Atoi(id)
-		if err != nil {
-			log.Printf("Erreur lors de la récupération de l'ID de service: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			utils.HandleError(w, "ID de service manquant", nil, http.StatusBadRequest)
 			return
 		}
 
-		service, err := service_repository.GetServiceByID(db, service_id)
+		service, err := service_repository.GetServiceByID(db, id)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération d: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+			utils.HandleError(w, "Erreur lors de la récupération du service", err, http.StatusInternalServerError)
 			return
 		}
 
@@ -51,13 +47,13 @@ func CreateServiceHandler(db *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&service)
 		if err != nil {
-			http.Error(w, "Requête invalide", http.StatusBadRequest)
+			utils.HandleError(w, "Requête invalide", err, http.StatusBadRequest)
 			return
 		}
 
 		_, err = service_repository.CreateService(db, service)
 		if err != nil {
-			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la création du service", err, http.StatusInternalServerError)
 			return
 		}
 
@@ -66,49 +62,47 @@ func CreateServiceHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 func UpdateServiceHandler(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        var service model.Service
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
 
-        // Décoder le corps de la requête en un objet service
-        err := json.NewDecoder(r.Body).Decode(&service)
-        if err != nil {
-            http.Error(w, "Requête invalide", http.StatusBadRequest)
-            return
-        }
+		if id == "" {
+			http.Error(w, "ID manquant dans l'URL", http.StatusBadRequest)
+			return
+		}
+		var service model.Service
 
-        // Mise à jour du service et récupération des informations mises à jour
-        updatedService, err := service_repository.UpdateService(db, service)
-        if err != nil {
-            http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
-            return
-        }
+		err := json.NewDecoder(r.Body).Decode(&service)
+		if err != nil {
+			utils.HandleError(w, "Requête invalide", err, http.StatusBadRequest)
+			return
+		}
 
-        // Envoyer les informations mises à jour en réponse
-        w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(updatedService)
-    }
+		updatedService, err := service_repository.UpdateService(db, service)
+		if err != nil {
+			utils.HandleError(w, "Erreur lors de la mise à jour du service", err, http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(updatedService)
+	}
 }
-
 
 func DeleteServiceHandler(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        id := r.URL.Query().Get("id")
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
 		fmt.Println(id)
-        if id == "" {
-            http.Error(w, "ID manquant dans la requête", http.StatusBadRequest)
-            return
-        }
+		if id == "" {
+			utils.HandleError(w, "ID de service manquant", nil, http.StatusBadRequest)
+			return
+		}
 
-        _, err := service_repository.DeleteService(db, id)
-        if err != nil {
-            http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
-            return
-        }
+		_, err := service_repository.DeleteService(db, id)
+		if err != nil {
+			utils.HandleError(w, "Erreur lors de la suppression du service", err, http.StatusInternalServerError)
+			return
+		}
 
-        w.WriteHeader(http.StatusOK)
-        w.Write([]byte("Service supprimé avec succès"))
-    }
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Service supprimé avec succès"))
+	}
 }
-
-
-

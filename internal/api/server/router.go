@@ -65,15 +65,18 @@ func NewRouter(db *sql.DB) *chi.Mux {
 
 	// slog routes
 	r.Get("/slot", controller.FetchSlot(db))
+	r.Get("/slot/{id}", controller.FetchSlotById(db))
 	r.Post(("/slot/add"), controller.CreateSlotHandler(db))
-	r.Put(("/slot/update"), controller.UpdateSlotHandler(db))
-	r.Delete(("/slot/delete"), controller.DeleteSlotHandler(db))
+	r.Put(("/slot/update/{id}"), controller.UpdateSlotHandler(db))
+	r.Delete(("/slot/delete/{id}"), controller.DeleteSlotHandler(db))
+
 
 	// service routes
 	r.Get("/service", controller.FetchService(db))
+	r.Get("/service/{id}", controller.FetchServiceById(db))
 	r.Post(("/service/add"), controller.CreateServiceHandler(db))
-	r.Put(("/service/update"), controller.UpdateServiceHandler(db))
-	r.Delete(("/service/delete"), controller.DeleteServiceHandler(db))
+	r.Put(("/service/update/{id}"), controller.UpdateServiceHandler(db))
+	r.Delete(("/service/delete/{id}"), controller.DeleteServiceHandler(db))
 
 	return r
 }

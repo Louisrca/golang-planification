@@ -1,21 +1,21 @@
 package controller
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	slot_repository "api-planning/repository"
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
-	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func FetchSlot(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		slots, err := slot_repository.GetSlot(db)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération des salon: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+			utils.HandleError(w, "Erreur lors de la récupération des créneaux", err, http.StatusInternalServerError)
 			return
 		}
 
@@ -25,18 +25,15 @@ func FetchSlot(db *sql.DB) http.HandlerFunc {
 
 func FetchSlotById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Query().Get("id")
-		slot_id, err := strconv.Atoi(id)
-		if err != nil {
-			log.Printf("Erreur lors de la récupération de l'ID de slot: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			utils.HandleError(w, "ID de créneau manquant", nil, http.StatusBadRequest)
 			return
 		}
 
-		slot, err := slot_repository.GetSlotByID(db, slot_id)
+		slot, err := slot_repository.GetSlotByID(db, id)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération d: %v", err)
-			http.Error(w, http.StatusText(500), 500)
+			utils.HandleError(w, "Erreur lors de la récupération du créneau", err, http.StatusInternalServerError)
 			return
 		}
 
@@ -50,56 +47,61 @@ func CreateSlotHandler(db *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&slot)
 		if err != nil {
-			http.Error(w, "Requête invalide", http.StatusBadRequest)
+			utils.HandleError(w, "Requête invalide", err, http.StatusBadRequest)
 			return
 		}
 
-		_, err = slot_repository.CreateSlot(db, slot)
+		slotId, err := slot_repository.CreateSlot(db, slot)
 		if err != nil {
-			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la création du créneau", err, http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(slot)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(slotId)
 	}
 }
 
 func UpdateSlotHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			http.Error(w, "ID manquant dans l'URL", http.StatusBadRequest)
+			return
+		}
 		var slot model.Slot
 
 		err := json.NewDecoder(r.Body).Decode(&slot)
 		if err != nil {
-			http.Error(w, "Requête invalide", http.StatusBadRequest)
+			utils.HandleError(w, "Erreur lors de la récupartion du créneau", err, http.StatusInternalServerError)
 			return
 		}
+		slot.ID = id
 
-		_, err = slot_repository.UpdateSlot(db, slot)
+		updateSlot, err := slot_repository.UpdateSlot(db, slot)
 		if err != nil {
-			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la mise à jour du créneau", err, http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(slot)
+		json.NewEncoder(w).Encode(updateSlot)
 	}
 }
 
 func DeleteSlotHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Query().Get("id")
-		
-        if id == "" {
-            http.Error(w, "ID manquant dans la requête", http.StatusBadRequest)
-            return
-        }
+		id := chi.URLParam(r, "id")
 
-        _, err := slot_repository.DeleteSlot(db, id)
-        if err != nil {
-            http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
-            return
-        }
+		if id == "" {
+			utils.HandleError(w, "ID de créneau manquant", nil, http.StatusBadRequest)
+			return
+		}
+
+		_, err := slot_repository.DeleteSlot(db, id)
+		if err != nil {
+			utils.HandleError(w, "Erreur lors de la suppression du créneau", err, http.StatusInternalServerError)
+			return
+		}
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Créneau supprimé avec succès"))
