@@ -73,7 +73,7 @@ func UpdateServiceHandler(db *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&service)
 		if err != nil {
-			utils.HandleError(w, "Requête invalide", err, http.StatusBadRequest)
+			utils.HandleError(w, "Erreur lors de la récupération du service", err, http.StatusInternalServerError)
 			return
 		}
 
