@@ -5,9 +5,10 @@ import (
 	customer_repository "api-planning/repository"
 	"database/sql"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func FetchCustomer(db *sql.DB) http.HandlerFunc {
