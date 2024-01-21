@@ -73,26 +73,24 @@ func UpdateSlot(db *sql.DB, slot model.Slot) (model.Slot, error) {
 }
 
 func DeleteSlot(db *sql.DB, id string) (model.Slot, error) {
-	// Récupérer les détails du slot avant la suppression
+
 	var slot model.Slot
 	err := db.QueryRow("SELECT id, start_time, end_time, is_booked, hairdresser_id FROM slot WHERE id = ?", id).
 		Scan(&slot.ID, &slot.StartTime, &slot.EndTime, &slot.IsBooked, &slot.HairdresserID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Aucun slot trouvé avec cet ID
+
 			return model.Slot{}, nil
 		}
 		log.Printf("Erreur lors de la récupération du slot: %v", err)
 		return model.Slot{}, err
 	}
 
-	// Suppression du slot
 	_, err = db.Exec("DELETE FROM slot WHERE id = ?", id)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête de suppression: %v", err)
 		return model.Slot{}, err
 	}
 
-	// Retourner les détails du slot supprimé
 	return slot, nil
 }
