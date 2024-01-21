@@ -41,7 +41,6 @@ func GetSlotByID(db *sql.DB, id string) (model.Slot, error) {
 
 func CreateSlot(db *sql.DB, slot model.Slot) (model.Slot, error) {
 	uuid := uuid.New()
-
 	_, err := db.Exec("INSERT INTO slot (id, hairdresser_id, is_booked, start_time, end_time) VALUES (?, ?, ?, ?, ?)",
 		uuid.String(), slot.HairdresserID, slot.IsBooked, slot.StartTime, slot.EndTime)
 	if err != nil {
@@ -73,7 +72,6 @@ func UpdateSlot(db *sql.DB, slot model.Slot) (model.Slot, error) {
 }
 
 func DeleteSlot(db *sql.DB, id string) (model.Slot, error) {
-
 	var slot model.Slot
 	err := db.QueryRow("SELECT id, start_time, end_time, is_booked, hairdresser_id FROM slot WHERE id = ?", id).
 		Scan(&slot.ID, &slot.StartTime, &slot.EndTime, &slot.IsBooked, &slot.HairdresserID)

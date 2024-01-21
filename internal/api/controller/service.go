@@ -51,14 +51,14 @@ func CreateServiceHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		_, err = service_repository.CreateService(db, service)
+		serviceID, err := service_repository.CreateService(db, service)
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la création du service", err, http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(service)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(serviceID)
 	}
 }
 func UpdateServiceHandler(db *sql.DB) http.HandlerFunc {
@@ -76,6 +76,7 @@ func UpdateServiceHandler(db *sql.DB) http.HandlerFunc {
 			utils.HandleError(w, "Erreur lors de la récupération du service", err, http.StatusInternalServerError)
 			return
 		}
+		service.ID = id
 
 		updatedService, err := service_repository.UpdateService(db, service)
 		if err != nil {

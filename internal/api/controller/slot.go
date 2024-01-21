@@ -78,13 +78,13 @@ func UpdateSlotHandler(db *sql.DB) http.HandlerFunc {
 		}
 		slot.ID = id
 
-		updateSlot, err := slot_repository.UpdateSlot(db, slot)
+		updatedSlot, err := slot_repository.UpdateSlot(db, slot)
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la mise à jour du créneau", err, http.StatusInternalServerError)
 			return
 		}
 
-		json.NewEncoder(w).Encode(updateSlot)
+		json.NewEncoder(w).Encode(updatedSlot)
 	}
 }
 

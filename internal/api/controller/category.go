@@ -11,31 +11,29 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-
 func FetchCategory(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        category, err := category_repository.GetCategory(db)
-         if err != nil {
-			utils.HandleError(w,"Erreur lors de la récupération des salon: %v", err, http.StatusInternalServerError)
-            return
-        }
+	return func(w http.ResponseWriter, r *http.Request) {
+		category, err := category_repository.GetCategory(db)
+		if err != nil {
+			utils.HandleError(w, "Erreur lors de la récupération des salon: %v", err, http.StatusInternalServerError)
+			return
+		}
 
-        json.NewEncoder(w).Encode(category)
-    }
+		json.NewEncoder(w).Encode(category)
+	}
 }
-
 
 func FetchCategoryById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r,"id")
-		
+		id := chi.URLParam(r, "id")
+
 		if id == "" {
 			utils.HandleError(w, "ID manquant dans l'URL", nil, http.StatusInternalServerError)
 			return
 		}
 
-		category, err := category_repository.GetCategoryByID(db,id)
-		 if err != nil {
+		category, err := category_repository.GetCategoryByID(db, id)
+		if err != nil {
 			utils.HandleError(w, "Erreur lors de la récupération de la catégorie: %v", err, http.StatusInternalServerError)
 			return
 		}
@@ -44,72 +42,72 @@ func FetchCategoryById(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-
 func CreateCategoryHandler(db *sql.DB) http.HandlerFunc {
-	
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		var category model.Category
 
 		err := json.NewDecoder(r.Body).Decode(&category)
 		if err != nil {
-			utils.HandleError(w, "Requête invalide",err, http.StatusInternalServerError)
+			utils.HandleError(w, "Requête invalide", err, http.StatusInternalServerError)
 			return
 		}
 
 		categoryID, err := category_repository.CreateCategory(db, category)
 		if err != nil {
-			utils.HandleError(w, "Erreur lors de la création de la categorie: %v",err, http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la création de la categorie: %v", err, http.StatusInternalServerError)
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(categoryID)
 	}
 }
 
 func UpdateCategoryHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
 
-		// Création d'une instance pour stocker les données décodées
+		if id == "" {
+			utils.HandleError(w, "ID manquant dans l'URL", nil, http.StatusInternalServerError)
+			return
+		}
+
 		var category model.Category
 
-		// Décodage du corps de la requête
 		err := json.NewDecoder(r.Body).Decode(&category)
 		if err != nil {
-			utils.HandleError(w, "Requête invalide",err, http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la récupération de la catégorie", err, http.StatusInternalServerError)
 			return
 		}
 
-		// Appel de la fonction pour mettre à jour la réservation
-		categoryID, err := category_repository.UpdateCategory(db, category)
+		category.ID = id
+
+		updatedCategory, err := category_repository.UpdateCategory(db, category)
 		if err != nil {
-			utils.HandleError(w, "Erreur lors de la mise à jour de la catégorie: %v",err, http.StatusInternalServerError)
+			utils.HandleError(w, "Erreur lors de la mise à jour de la catégorie: %v", err, http.StatusInternalServerError)
 			return
 		}
 
-		// Envoie d'une réponse réussie
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(categoryID)
+		json.NewEncoder(w).Encode(updatedCategory)
 	}
 }
 
-
 func DeleteCategoryHandler(db *sql.DB) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        id := chi.URLParam(r, "id")
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
 
-        if id == "" {
-			utils.HandleError(w, "ID manquant dans l'URL",nil, http.StatusInternalServerError)
+		if id == "" {
+			utils.HandleError(w, "ID manquant dans l'URL", nil, http.StatusInternalServerError)
 			return
-        }
+		}
 
-        err := category_repository.DeleteCategory(db, id)
-        if err != nil {
-			utils.HandleError(w, "Erreur lors de la suppression de la catégorie: %v",err, http.StatusInternalServerError)
+		_, err := category_repository.DeleteCategory(db, id)
+		if err != nil {
+			utils.HandleError(w, "Erreur lors de la suppression de la catégorie: %v", err, http.StatusInternalServerError)
 			return
-        }
+		}
 
-        w.WriteHeader(http.StatusOK)
-        w.Write([]byte("Catégorie supprimée avec succès"))
-    }
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Catégorie supprimée avec succès"))
+	}
 }
