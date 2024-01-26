@@ -2,13 +2,15 @@ package utils
 
 import (
 	"api-planning/model"
-	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
+	"fmt"
 	"log"
 	"os"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/joho/godotenv"
 )
 
-func generateUserAccessToken(customer model.Customer) (string, error) {
+func GenerateUserAccessToken(customer model.Customer) (string, error) {
 	// Load .env file
 	err := godotenv.Load()
 	if err != nil {
@@ -25,6 +27,8 @@ func generateUserAccessToken(customer model.Customer) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	fmt.Println(token)
 
 	return token, nil
 }
