@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"api-planning/model"
 	"fmt"
 	"log"
 	"os"
@@ -10,8 +9,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GenerateUserAccessToken(customer model.Customer) (string, error) {
+func GenerateUserAccessToken(model interface{}) (string, error) {
 	// Load .env file
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Erreur lors du chargement du fichier .env")
@@ -20,7 +20,7 @@ func GenerateUserAccessToken(customer model.Customer) (string, error) {
 	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
 
 	jwtCreated := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"customerID": customer.ID,
+		"customerID": model,
 	})
 
 	token, err := jwtCreated.SignedString([]byte(jwtSigningKey))

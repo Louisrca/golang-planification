@@ -3,7 +3,9 @@ package controller
 import (
 	"api-planning/internal/utils"
 	"api-planning/model"
+	admin_repository "api-planning/repository"
 	customer_repository "api-planning/repository"
+	hairdresser_repository "api-planning/repository"
 
 	"database/sql"
 	"encoding/json"
@@ -12,7 +14,7 @@ import (
 
 
 
-func RegisterHandler(db *sql.DB) http.HandlerFunc {
+func RegisterCustomerHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request){
 		var customer model.Customer
 
@@ -30,7 +32,7 @@ func RegisterHandler(db *sql.DB) http.HandlerFunc {
 		
 
 		
-		token, err := utils.GenerateUserAccessToken(customerID)
+		token, err := utils.GenerateUserAccessToken(customerID.ID)
 		
 		if err != nil{
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -48,3 +50,79 @@ func RegisterHandler(db *sql.DB) http.HandlerFunc {
 
 	}
 }
+
+func RegisterAdminHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request){
+		var admin model.Admin
+
+		err := json.NewDecoder(r.Body).Decode(&admin)
+		if err != nil {
+			http.Error(w, "Requête invalide", http.StatusBadRequest)
+			return
+		}
+
+		adminID, err := admin_repository.CreateAdmin(db, admin)
+		if err != nil {
+			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+			return
+		}
+		
+
+		
+		token, err := utils.GenerateUserAccessToken(adminID.ID)
+		
+		if err != nil{
+			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
+		}
+
+		response := map[string]interface{}{
+			"adminID": adminID,
+			"token":      token,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+
+		
+
+	}
+}
+func RegisterHaidresserHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request){
+		var hairdresser model.Hairdresser
+
+		err := json.NewDecoder(r.Body).Decode(&hairdresser)
+		if err != nil {
+			http.Error(w, "Requête invalide", http.StatusBadRequest)
+			return
+		}
+
+		hairdresserID, err := hairdresser_repository.CreateHairDresser(db, hairdresser)
+		if err != nil {
+			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+			return
+		}
+		
+
+		
+		token, err := utils.GenerateUserAccessToken(hairdresserID.ID)
+		
+		if err != nil{
+			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
+		}
+
+		response := map[string]interface{}{
+			"hairdresserID": hairdresserID,
+			"token":      token,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+
+		
+
+	}
+}
+
+
+

@@ -22,7 +22,10 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	})
 
 	// register route
-	r.Post("/register", controller.RegisterHandler(db))
+	r.Post("/register/customer", controller.RegisterCustomerHandler(db))
+	r.Post("/register/admin", controller.RegisterAdminHandler(db))
+	r.Post("/register/hairdresser", controller.RegisterHaidresserHandler(db))
+	
 
 	// admin routes
 	r.Get("/admin", controller.FetchAdmin(db))

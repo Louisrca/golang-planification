@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	"database/sql"
 	"log"
@@ -42,6 +43,9 @@ func GetAdminById(db *sql.DB, id string) (model.Admin, error) {
 func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
 
 	uuid := uuid.New()
+
+	hashedPassword := utils.HashPassword(admin.Password)
+	admin.Password = hashedPassword
 
 	_, err := db.Exec("INSERT INTO admin (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)",
 		uuid.String(), admin.Firstname, admin.Lastname, admin.Email, admin.Password)

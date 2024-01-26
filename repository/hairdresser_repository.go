@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	"database/sql"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
@@ -40,6 +42,9 @@ func GetHairDresserByID(db *sql.DB, id string) (model.Hairdresser, error) {
 
 func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (model.Hairdresser, error) {
 	uuid := uuid.New()
+
+	hashedPassword := utils.HashPassword(hairDresser.Password)
+	hairDresser.Password = hashedPassword
 	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.Password, hairDresser.StartTime, hairDresser.EndTime, hairDresser.HairSalonID)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
