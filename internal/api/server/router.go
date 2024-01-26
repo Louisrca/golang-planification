@@ -21,9 +21,12 @@ func NewRouter(db *sql.DB) *chi.Mux {
 		w.Write([]byte("Bienvenue sur notre serveur !"))
 	})
 
+	// register route
+	r.Post("/register", controller.RegisterHandler(db))
+
 	// admin routes
 	r.Get("/admin", controller.FetchAdmin(db))
-	r.Get("/admin/{id}",controller.FetchAdminById(db))
+	r.Get("/admin/{id}", controller.FetchAdminById(db))
 	r.Post(("/admin/add"), controller.CreateAdminHandler(db))
 	r.Put(("/admin/update/{id}"), controller.UpdateAdminHandler(db))
 	r.Delete(("/admin/delete/{id}"), controller.DeleteAdminHandler(db))
@@ -69,7 +72,6 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Post(("/slot/add"), controller.CreateSlotHandler(db))
 	r.Put(("/slot/update/{id}"), controller.UpdateSlotHandler(db))
 	r.Delete(("/slot/delete/{id}"), controller.DeleteSlotHandler(db))
-
 
 	// service routes
 	r.Get("/service", controller.FetchService(db))
