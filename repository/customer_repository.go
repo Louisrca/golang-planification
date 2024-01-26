@@ -42,23 +42,20 @@ func GetCustomerByID(db *sql.DB, id string) (model.Customer, error) {
 }
 
 func CreateCustomer(db *sql.DB, customer model.Customer) (model.Customer, error) {
-    uuid := uuid.New()
+	uuid := uuid.New()
 
-    // Hacher le mot de passe avant l'insertion
-    hashedPassword := utils.HashPassword(customer.Password)
-    customer.Password = hashedPassword // Mettre à jour l'objet customer avec le mot de passe haché
+	hashedPassword := utils.HashPassword(customer.Password)
+	customer.Password = hashedPassword
 
-    // Insertion unique dans la base de données avec le mot de passe haché
-    _, err := db.Exec("INSERT INTO customer (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)", uuid.String(), customer.Firstname, customer.Lastname, customer.Email, hashedPassword)
-    if err != nil {
-        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-        return model.Customer{}, err
-    }
+	_, err := db.Exec("INSERT INTO customer (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)", uuid.String(), customer.Firstname, customer.Lastname, customer.Email, hashedPassword)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return model.Customer{}, err
+	}
 
-    customer.ID = uuid.String()
-    return customer, nil
+	customer.ID = uuid.String()
+	return customer, nil
 }
-
 
 func UpdateCustomer(db *sql.DB, customer model.Customer) (model.Customer, error) {
 	_, err := db.Exec("UPDATE customer SET firstname = ?, lastname = ?, email = ? WHERE id = ?", customer.Firstname, customer.Lastname, customer.Email, customer.ID)
