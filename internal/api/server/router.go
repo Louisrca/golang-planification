@@ -7,14 +7,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	isAuthenticated"api-planning/internal/middleware"
 )
 
 func NewRouter(db *sql.DB) *chi.Mux {
 	r := chi.NewRouter()
 
-	// Middleware de base, vous pouvez ajouter le vôtre ici
+	
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+
 
 	// Définir les routes
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +27,11 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Post("/register/customer", controller.RegisterCustomerHandler(db))
 	r.Post("/register/admin", controller.RegisterAdminHandler(db))
 	r.Post("/register/hairdresser", controller.RegisterHaidresserHandler(db))
+
+	// login route
+	r.Post("/login/admin", controller.LoginAdminHandler(db))
+	r.Post("/login/customer", controller.LoginCustomerHandler(db))
+	r.Post("/login/hairdresser", controller.LoginHairdresserHandler(db))
 	
 
 	// admin routes
@@ -49,11 +56,14 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Delete(("/category/delete/{id}"), controller.DeleteCategoryHandler(db))
 
 	// customer routes
-	r.Get("/customer", controller.FetchCustomer(db))
-	r.Get("/customer/{id}", controller.FetchCustomerById(db))
-	r.Post(("/customer/add"), controller.CreateCustomerHandler(db))
-	r.Put(("/customer/update/{id}"), controller.UpdateCustomerHandler(db))
-	r.Delete(("/customer/delete/{id}"), controller.DeleteCustomerHandler(db))
+	customerRoutes := chi.NewRouter()
+	customerRoutes.Use(isAuthenticated.AuthMiddleware)
+	customerRoutes.Get("/customer", controller.FetchCustomer(db))
+	customerRoutes.Get("/customer/{id}", controller.FetchCustomerById(db))
+	customerRoutes.Post(("/customer/add"), controller.CreateCustomerHandler(db))
+	customerRoutes.Put(("/customer/update/{id}"), controller.UpdateCustomerHandler(db))
+	customerRoutes.Delete(("/customer/delete/{id}"), controller.DeleteCustomerHandler(db))
+	r.Mount("/customer", customerRoutes)
 
 	// hair_salon routes
 	r.Get("/hair_salon", controller.FetchHairSalon(db))

@@ -40,6 +40,17 @@ func GetHairDresserByID(db *sql.DB, id string) (model.Hairdresser, error) {
 	return hairdresser, nil
 }
 
+func GetHairDresserByEmail(db *sql.DB, email string) (model.Hairdresser, error) {
+	var hairdresser model.Hairdresser
+	err := db.QueryRow("SELECT email, password FROM hairdresser WHERE email = ?", email).Scan(&hairdresser.Email, &hairdresser.Password)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return hairdresser, err
+	}
+
+	return hairdresser, nil
+}
+
 func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (model.Hairdresser, error) {
 	uuid := uuid.New()
 

@@ -41,6 +41,17 @@ func GetCustomerByID(db *sql.DB, id string) (model.Customer, error) {
 	return customer, nil
 }
 
+func GetCustomerByEmail(db *sql.DB, email string) (model.Customer, error) {
+	var customer model.Customer
+	 err := db.QueryRow("SELECT email, password FROM customer WHERE email = ?", email).Scan(&customer.Email, &customer.Password)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return customer, err
+	}
+
+	return customer, nil
+}
+
 func CreateCustomer(db *sql.DB, customer model.Customer) (model.Customer, error) {
 	uuid := uuid.New()
 

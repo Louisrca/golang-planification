@@ -40,6 +40,18 @@ func GetAdminById(db *sql.DB, id string) (model.Admin, error) {
 	return admin, nil
 }
 
+
+func GetAdminByEmail(db *sql.DB, email string) (model.Admin, error) {
+	var admin model.Admin
+	err := db.QueryRow("SELECT email, password FROM admin WHERE email = ?", email).Scan(&admin.Email, &admin.Password)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return admin, err
+	}
+
+	return admin, nil
+}
+
 func CreateAdmin(db *sql.DB, admin model.Admin) (model.Admin, error) {
 
 	uuid := uuid.New()
