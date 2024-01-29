@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	isAuthenticated "api-planning/internal/middleware"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -30,28 +31,36 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Post("/login/admin", controller.LoginAdminHandler(db))
 	r.Post("/login/customer", controller.LoginCustomerHandler(db))
 	r.Post("/login/hairdresser", controller.LoginHairdresserHandler(db))
-	
 
 	// admin routes
-	r.Get("/admin", controller.FetchAdmin(db))
-	r.Get("/admin/{id}", controller.FetchAdminById(db))
-	r.Post(("/admin/add"), controller.CreateAdminHandler(db))
-	r.Put(("/admin/update/{id}"), controller.UpdateAdminHandler(db))
-	r.Delete(("/admin/delete/{id}"), controller.DeleteAdminHandler(db))
+	adminRoutes := chi.NewRouter()
+	adminRoutes.Use(isAuthenticated.AuthMiddleware)
+	adminRoutes.Get("/admin", controller.FetchAdmin(db))
+	adminRoutes.Get("/admin/{id}", controller.FetchAdminById(db))
+	adminRoutes.Post(("/admin/add"), controller.CreateAdminHandler(db))
+	adminRoutes.Put(("/admin/update/{id}"), controller.UpdateAdminHandler(db))
+	adminRoutes.Delete(("/admin/delete/{id}"), controller.DeleteAdminHandler(db))
+	r.Mount("/", adminRoutes)
 
 	// booking routes
-	r.Get("/booking", controller.FetchBooking(db))
-	r.Get("/booking/{id}", controller.FetchBookingById(db))
-	r.Post(("/booking/add"), controller.CreateBookingHandler(db))
-	r.Put(("/booking/update/{id}"), controller.UpdateBookingHandler(db))
-	r.Delete(("/booking/delete/{id}"), controller.DeleteBookingHandler(db))
+	bookingRoutes := chi.NewRouter()
+	bookingRoutes.Use(isAuthenticated.AuthMiddleware)
+	bookingRoutes.Get("/booking", controller.FetchBooking(db))
+	bookingRoutes.Get("/booking/{id}", controller.FetchBookingById(db))
+	bookingRoutes.Post(("/booking/add"), controller.CreateBookingHandler(db))
+	bookingRoutes.Put(("/booking/update/{id}"), controller.UpdateBookingHandler(db))
+	bookingRoutes.Delete(("/booking/delete/{id}"), controller.DeleteBookingHandler(db))
+	r.Mount("/", bookingRoutes)
 
 	// category routes
-	r.Get("/category", controller.FetchCategory(db))
-	r.Get("/category/{id}", controller.FetchCategoryById(db))
-	r.Post(("/category/add"), controller.CreateCategoryHandler(db))
-	r.Put(("/category/update/{id}"), controller.UpdateCategoryHandler(db))
-	r.Delete(("/category/delete/{id}"), controller.DeleteCategoryHandler(db))
+	categoryRoutes := chi.NewRouter()
+	categoryRoutes.Use(isAuthenticated.AuthMiddleware)
+	categoryRoutes.Get("/category", controller.FetchCategory(db))
+	categoryRoutes.Get("/category/{id}", controller.FetchCategoryById(db))
+	categoryRoutes.Post(("/category/add"), controller.CreateCategoryHandler(db))
+	categoryRoutes.Put(("/category/update/{id}"), controller.UpdateCategoryHandler(db))
+	categoryRoutes.Delete(("/category/delete/{id}"), controller.DeleteCategoryHandler(db))
+	r.Mount("/", categoryRoutes)
 
 	// customer routes
 	customerRoutes := chi.NewRouter()
@@ -61,35 +70,46 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	customerRoutes.Post(("/customer/add"), controller.CreateCustomerHandler(db))
 	customerRoutes.Put(("/customer/update/{id}"), controller.UpdateCustomerHandler(db))
 	customerRoutes.Delete(("/customer/delete/{id}"), controller.DeleteCustomerHandler(db))
-	r.Mount("/customer", customerRoutes)
+	r.Mount("/", customerRoutes)
 
 	// hair_salon routes
-	r.Get("/hair_salon", controller.FetchHairSalon(db))
-	r.Get("/hair_salon/{id}", controller.FetchHairSalonById(db))
-	r.Post(("/hair_salon/add"), controller.CreateHairSalonHandler(db))
-	r.Put(("/hair_salon/update/{id}"), controller.UpdateHairSalonHandler(db))
-	r.Delete(("/hair_salon/delete/{id}"), controller.DeleteHairSalonHandler(db))
+	hairSalonRoutes := chi.NewRouter()
+	hairSalonRoutes.Use(isAuthenticated.AuthMiddleware)
+	hairSalonRoutes.Get("/hair_salon", controller.FetchHairSalon(db))
+	hairSalonRoutes.Get("/hair_salon/{id}", controller.FetchHairSalonById(db))
+	hairSalonRoutes.Post(("/hair_salon/add"), controller.CreateHairSalonHandler(db))
+	hairSalonRoutes.Put(("/hair_salon/update/{id}"), controller.UpdateHairSalonHandler(db))
+	hairSalonRoutes.Delete(("/hair_salon/delete/{id}"), controller.DeleteHairSalonHandler(db))
+	r.Mount("/", hairSalonRoutes)
 
 	// hairdresser routes
-	r.Get("/hairdresser", controller.FetchHairDresser(db))
-	r.Get("/hairdresser/{id}", controller.FetchHairDresserById(db))
-	r.Post(("/hairdresser/add"), controller.CreateHairDresserHandler(db))
-	r.Put(("/hairdresser/update/{id}"), controller.UpdateHairDresserHandler(db))
-	r.Delete(("/hairdresser/delete/{id}"), controller.DeleteHairDresserHandler(db))
+	hairDresserRoutes := chi.NewRouter()
+	hairDresserRoutes.Use(isAuthenticated.AuthMiddleware)
+	hairDresserRoutes.Get("/hairdresser", controller.FetchHairDresser(db))
+	hairDresserRoutes.Get("/hairdresser/{id}", controller.FetchHairDresserById(db))
+	hairDresserRoutes.Post(("/hairdresser/add"), controller.CreateHairDresserHandler(db))
+	hairDresserRoutes.Put(("/hairdresser/update/{id}"), controller.UpdateHairDresserHandler(db))
+	hairDresserRoutes.Delete(("/hairdresser/delete/{id}"), controller.DeleteHairDresserHandler(db))
+	r.Mount("/", hairDresserRoutes)
 
 	// slog routes
-	r.Get("/slot", controller.FetchSlot(db))
-	r.Get("/slot/{id}", controller.FetchSlotById(db))
-	r.Post(("/slot/add"), controller.CreateSlotHandler(db))
-	r.Put(("/slot/update/{id}"), controller.UpdateSlotHandler(db))
-	r.Delete(("/slot/delete/{id}"), controller.DeleteSlotHandler(db))
+	slogRoutes := chi.NewRouter()
+	slogRoutes.Use(isAuthenticated.AuthMiddleware)
+	slogRoutes.Get("/slot", controller.FetchSlot(db))
+	slogRoutes.Get("/slot/{id}", controller.FetchSlotById(db))
+	slogRoutes.Post(("/slot/add"), controller.CreateSlotHandler(db))
+	slogRoutes.Put(("/slot/update/{id}"), controller.UpdateSlotHandler(db))
+	slogRoutes.Delete(("/slot/delete/{id}"), controller.DeleteSlotHandler(db))
+	r.Mount("/", slogRoutes)
 
 	// service routes
-	r.Get("/service", controller.FetchService(db))
-	r.Get("/service/{id}", controller.FetchServiceById(db))
-	r.Post(("/service/add"), controller.CreateServiceHandler(db))
-	r.Put(("/service/update/{id}"), controller.UpdateServiceHandler(db))
-	r.Delete(("/service/delete/{id}"), controller.DeleteServiceHandler(db))
+	serviceRoutes := chi.NewRouter()
+	serviceRoutes.Get("/service", controller.FetchService(db))
+	serviceRoutes.Get("/service/{id}", controller.FetchServiceById(db))
+	serviceRoutes.Post(("/service/add"), controller.CreateServiceHandler(db))
+	serviceRoutes.Put(("/service/update/{id}"), controller.UpdateServiceHandler(db))
+	serviceRoutes.Delete(("/service/delete/{id}"), controller.DeleteServiceHandler(db))
+	r.Mount("/", serviceRoutes)
 
 	return r
 }

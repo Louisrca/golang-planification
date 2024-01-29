@@ -77,7 +77,7 @@ func UpdateCustomerHandler(db *sql.DB) http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&customer)
 		if err != nil {
-			log.Printf("Erreur lors de la récupération ddu client : %v", err)
+			log.Printf("Erreur lors de la récupération du client : %v", err)
 			http.Error(w, http.StatusText(500), 500)
 			return
 		}
