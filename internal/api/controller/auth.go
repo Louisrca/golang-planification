@@ -29,7 +29,7 @@ func RegisterCustomerHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(customerID.ID)
+		token, err := utils.GenerateUserAccessToken(customerID.ID, "customer")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -62,7 +62,7 @@ func RegisterAdminHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(adminID.ID)
+		token, err := utils.GenerateUserAccessToken(adminID.ID, "admin")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -94,7 +94,7 @@ func RegisterHaidresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(hairdresserID.ID)
+		token, err := utils.GenerateUserAccessToken(hairdresserID.ID, "hairdresser")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -139,7 +139,7 @@ func LoginCustomerHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateUserAccessToken(customer.Email)
+		tokenString, err := utils.GenerateUserAccessToken(customer.Email, "customer")
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la génération du JWT", err, http.StatusInternalServerError)
 			return
@@ -177,7 +177,7 @@ func LoginAdminHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateUserAccessToken(admin.Email)
+		tokenString, err := utils.GenerateUserAccessToken(admin.Email, "admin")
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la génération du JWT", err, http.StatusInternalServerError)
 			return
@@ -216,7 +216,7 @@ func LoginHairdresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateUserAccessToken(hairdresser.Email)
+		tokenString, err := utils.GenerateUserAccessToken(hairdresser.Email, "hairdresser")
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la génération du JWT", err, http.StatusInternalServerError)
 			return

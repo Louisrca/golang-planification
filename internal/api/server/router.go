@@ -5,18 +5,16 @@ import (
 	"database/sql"
 	"net/http"
 
+	isAuthenticated "api-planning/internal/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	isAuthenticated"api-planning/internal/middleware"
 )
 
 func NewRouter(db *sql.DB) *chi.Mux {
 	r := chi.NewRouter()
 
-	
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-
 
 	// Définir les routes
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
