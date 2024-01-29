@@ -20,7 +20,7 @@ func GenerateUserAccessToken(model interface{}, userType string) (string, error)
 
 	jwtCreated := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user":     model,
-		"userType": userType,
+		"role": userType,
 	})
 
 	token, err := jwtCreated.SignedString([]byte(jwtSigningKey))

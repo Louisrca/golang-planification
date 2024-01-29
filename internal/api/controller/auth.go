@@ -23,20 +23,20 @@ func RegisterCustomerHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		customerID, err := customer_repository.CreateCustomer(db, customer)
+		customer, err = customer_repository.CreateCustomer(db, customer)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(customerID.ID, "customer")
+		token, err := utils.GenerateUserAccessToken(customer.Email, "customer")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
 		}
 
 		response := map[string]interface{}{
-			"customerID": customerID,
+			"customer": customer,
 			"token":      token,
 		}
 
@@ -56,20 +56,20 @@ func RegisterAdminHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		adminID, err := admin_repository.CreateAdmin(db, admin)
+		admin, err = admin_repository.CreateAdmin(db, admin)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(adminID.ID, "admin")
+		token, err := utils.GenerateUserAccessToken(admin.Email, "admin")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
 		}
 
 		response := map[string]interface{}{
-			"adminID": adminID,
+			"admin": admin,
 			"token":   token,
 		}
 
@@ -88,20 +88,20 @@ func RegisterHaidresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		hairdresserID, err := hairdresser_repository.CreateHairDresser(db, hairdresser)
+		hairdresser, err = hairdresser_repository.CreateHairDresser(db, hairdresser)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(hairdresserID.ID, "hairdresser")
+		token, err := utils.GenerateUserAccessToken(hairdresser.Email, "hairdresser")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
 		}
 
 		response := map[string]interface{}{
-			"hairdresserID": hairdresserID,
+			"hairdresser": hairdresser,
 			"token":         token,
 		}
 
