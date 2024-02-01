@@ -9,11 +9,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 func NewRouter(db *sql.DB) *chi.Mux {
+	
 	r := chi.NewRouter()
+	cors := cors.New(cors.Options{
+        AllowedOrigins: []string{"*"}, // Autoriser toutes les origines, ajustez selon vos besoins
+        AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+        ExposedHeaders: []string{"Link"},
+        AllowCredentials: true,
+        MaxAge: 300, // Maximum cache duration for preflight requests
+    })
 
+    r.Use(cors.Handler)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 

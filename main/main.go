@@ -24,6 +24,9 @@ func main() {
     fmt.Println("Connexion réussie à la base de données MariaDB !")
 	 router := server.NewRouter(db)
 
+     
+    
+
     // Démarrage du serveur
     log.Println("Démarrage du serveur sur le port :8080")
     http.ListenAndServe(":8080", router)
