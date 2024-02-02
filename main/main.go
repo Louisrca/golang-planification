@@ -9,25 +9,18 @@ import (
 )
 
 func main() {
+	db := config.InitDB()
+	defer db.Close()
 
-   
+	err := db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    
-    db := config.InitDB()
-    defer db.Close()
+	fmt.Println("Connexion réussie à la base de données MariaDB !")
+	router := server.NewRouter(db)
 
-    err := db.Ping()
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    fmt.Println("Connexion réussie à la base de données MariaDB !")
-	 router := server.NewRouter(db)
-
-     
-    
-
-    // Démarrage du serveur
-    log.Println("Démarrage du serveur sur le port :8080")
-    http.ListenAndServe(":8080", router)
+	// Démarrage du serveur
+	log.Println("Démarrage du serveur sur le port :8080")
+	http.ListenAndServe(":8080", router)
 }
