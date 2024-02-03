@@ -56,7 +56,15 @@ func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (model.Hairdre
 
 	hashedPassword := utils.HashPassword(hairDresser.Password)
 	hairDresser.Password = hashedPassword
-	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.Password, hairDresser.StartTime, hairDresser.EndTime, hairDresser.HairSalonID)
+
+	var hairSalonID sql.NullString
+	if hairDresser.HairSalonID != "" {
+		hairSalonID = sql.NullString{String: hairDresser.HairSalonID, Valid: true}
+	} else {
+		hairSalonID = sql.NullString{Valid: false}
+	}
+
+	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.Password, hairDresser.StartTime, hairDresser.EndTime, hairSalonID)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 		return model.Hairdresser{}, err
