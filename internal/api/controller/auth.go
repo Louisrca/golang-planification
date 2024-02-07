@@ -1,7 +1,6 @@
 package controller
 
 import (
-	// "api-planning/internal/middleware"
 	"api-planning/internal/utils"
 	"api-planning/model"
 	admin_repository "api-planning/repository"
@@ -29,7 +28,7 @@ func RegisterCustomerHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(customer.Email, "customer")
+		token, err := utils.GenerateUserAccessToken(customer.Email, customer.ID, "customer")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -37,7 +36,7 @@ func RegisterCustomerHandler(db *sql.DB) http.HandlerFunc {
 
 		response := map[string]interface{}{
 			"customer": customer,
-			"token":      token,
+			"token":    token,
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -62,7 +61,7 @@ func RegisterAdminHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(admin.Email, "admin")
+		token, err := utils.GenerateUserAccessToken(admin.Email,admin.ID, "admin")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -88,13 +87,13 @@ func RegisterHaidresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		hairdresser, err = hairdresser_repository.CreateHairDresser(db, hairdresser)
+		hairdresser, err = hairdresser_repository.CreateHairdresser(db, hairdresser)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
 		}
 
-		token, err := utils.GenerateUserAccessToken(hairdresser.Email, "hairdresser")
+		token, err := utils.GenerateUserAccessToken(hairdresser.Email,hairdresser.ID, "hairdresser")
 
 		if err != nil {
 			http.Error(w, "Erreur lors de la génération du token", http.StatusInternalServerError)
@@ -115,7 +114,6 @@ func LoginCustomerHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds model.UserCredentials
 
-		// Décoder le JSON du corps de la requête
 		err := json.NewDecoder(r.Body).Decode(&creds)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -125,10 +123,8 @@ func LoginCustomerHandler(db *sql.DB) http.HandlerFunc {
 		customer, err := customer_repository.GetCustomerByEmail(db, creds.Email)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				// Utilisateur non trouvé
 				http.Error(w, "Utilisateur non trouvé", http.StatusUnauthorized)
 			} else {
-				// Autre erreur de base de données
 				http.Error(w, "Erreur serveur", http.StatusInternalServerError)
 			}
 			return
@@ -139,13 +135,12 @@ func LoginCustomerHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateUserAccessToken(customer.Email, "customer")
+		tokenString, err := utils.GenerateUserAccessToken(customer.Email,customer.ID, "customer")
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la génération du JWT", err, http.StatusInternalServerError)
 			return
 		}
 
-		// Renvoyer le token JWT
 		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 	}
 }
@@ -153,7 +148,6 @@ func LoginAdminHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds model.UserCredentials
 
-		// Décoder le JSON du corps de la requête
 		err := json.NewDecoder(r.Body).Decode(&creds)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -163,10 +157,8 @@ func LoginAdminHandler(db *sql.DB) http.HandlerFunc {
 		admin, err := admin_repository.GetAdminByEmail(db, creds.Email)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				// Utilisateur non trouvé
 				http.Error(w, "Utilisateur non trouvé", http.StatusUnauthorized)
 			} else {
-				// Autre erreur de base de données
 				http.Error(w, "Erreur serveur", http.StatusInternalServerError)
 			}
 			return
@@ -177,13 +169,12 @@ func LoginAdminHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateUserAccessToken(admin.Email, "admin")
+		tokenString, err := utils.GenerateUserAccessToken(admin.Email, admin.ID, "admin")
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la génération du JWT", err, http.StatusInternalServerError)
 			return
 		}
 
-		// Renvoyer le token JWT
 		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 	}
 }
@@ -192,20 +183,17 @@ func LoginHairdresserHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var creds model.UserCredentials
 
-		// Décoder le JSON du corps de la requête
 		err := json.NewDecoder(r.Body).Decode(&creds)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		hairdresser, err := hairdresser_repository.GetHairDresserByEmail(db, creds.Email)
+		hairdresser, err := hairdresser_repository.GetHairdresserByEmail(db, creds.Email)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				// Utilisateur non trouvé
 				http.Error(w, "Utilisateur non trouvé", http.StatusUnauthorized)
 			} else {
-				// Autre erreur de base de données
 				http.Error(w, "Erreur serveur", http.StatusInternalServerError)
 			}
 			return
@@ -216,13 +204,12 @@ func LoginHairdresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateUserAccessToken(hairdresser.Email, "hairdresser")
+		tokenString, err := utils.GenerateUserAccessToken(hairdresser.Email, hairdresser.ID, "hairdresser")
 		if err != nil {
 			utils.HandleError(w, "Erreur lors de la génération du JWT", err, http.StatusInternalServerError)
 			return
 		}
 
-		// Renvoyer le token JWT
 		json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 	}
 }

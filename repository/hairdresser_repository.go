@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
+func GetHairdresser(db *sql.DB) ([]model.Hairdresser, error) {
 	rows, err := db.Query("SELECT id, firstname, lastname, email, start_time, end_time, hair_salon_id FROM hairdresser")
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
@@ -29,7 +29,7 @@ func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
 	return hairdressers, nil
 }
 
-func GetHairDresserByID(db *sql.DB, id string) (model.Hairdresser, error) {
+func GetHairdresserByID(db *sql.DB, id string) (model.Hairdresser, error) {
 	var hairdresser model.Hairdresser
 	err := db.QueryRow("SELECT id, firstname, lastname, email, start_time, end_time, hair_salon_id FROM hairdresser WHERE id = ?", id).Scan(&hairdresser.ID, &hairdresser.Firstname, &hairdresser.Lastname, &hairdresser.Email, &hairdresser.StartTime, &hairdresser.EndTime, &hairdresser.HairSalonID)
 	if err != nil {
@@ -40,7 +40,7 @@ func GetHairDresserByID(db *sql.DB, id string) (model.Hairdresser, error) {
 	return hairdresser, nil
 }
 
-func GetHairDresserByEmail(db *sql.DB, email string) (model.Hairdresser, error) {
+func GetHairdresserByEmail(db *sql.DB, email string) (model.Hairdresser, error) {
 	var hairdresser model.Hairdresser
 	err := db.QueryRow("SELECT email, password FROM hairdresser WHERE email = ?", email).Scan(&hairdresser.Email, &hairdresser.Password)
 	if err != nil {
@@ -51,50 +51,53 @@ func GetHairDresserByEmail(db *sql.DB, email string) (model.Hairdresser, error) 
 	return hairdresser, nil
 }
 
-func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (model.Hairdresser, error) {
+func CreateHairdresser(db *sql.DB, hairdresser model.Hairdresser) (model.Hairdresser, error) {
 	uuid := uuid.New()
 
-	hashedPassword := utils.HashPassword(hairDresser.Password)
-	hairDresser.Password = hashedPassword
+	hashedPassword := utils.HashPassword(hairdresser.Password)
+	hairdresser.Password = hashedPassword
 
 	var hairSalonID sql.NullString
-	if hairDresser.HairSalonID != "" {
-		hairSalonID = sql.NullString{String: hairDresser.HairSalonID, Valid: true}
+	if hairdresser.HairSalonID != "" {
+		hairSalonID = sql.NullString{String: hairdresser.HairSalonID, Valid: true}
 	} else {
 		hairSalonID = sql.NullString{Valid: false}
 	}
 
-	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.Password, hairDresser.StartTime, hairDresser.EndTime, hairSalonID)
+	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairdresser.Firstname, hairdresser.Lastname, hairdresser.Email, hairdresser.Password, hairdresser.StartTime, hairdresser.EndTime, hairSalonID)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 		return model.Hairdresser{}, err
 	}
 
-	hairDresser.ID = uuid.String()
+	hairdresser.ID = uuid.String()
 
-	return hairDresser, nil
+	return hairdresser, nil
 }
 
-func UpdateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (model.Hairdresser, error) {
-	_, err := db.Exec("UPDATE hairdresser SET firstname = ?, lastname = ?, email = ?, start_time = ?, end_time = ?, hair_salon_id = ? WHERE id = ?", hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.StartTime, hairDresser.EndTime, hairDresser.HairSalonID, hairDresser.ID)
-	if err != nil {
-		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return model.Hairdresser{}, err
-	}
 
-	var updatedHairDresser model.Hairdresser
-	err = db.QueryRow("SELECT id, firstname, lastname, email, start_time, end_time, hair_salon_id FROM hairdresser WHERE id = ?", hairDresser.ID).Scan(&updatedHairDresser.ID, &updatedHairDresser.Firstname, &updatedHairDresser.Lastname, &updatedHairDresser.Email, &updatedHairDresser.StartTime, &updatedHairDresser.EndTime, &updatedHairDresser.HairSalonID)
-	if err != nil {
-		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-		return model.Hairdresser{}, err
-	}
+func UpdateHairdresser(db *sql.DB, hairdresserID string, hairSalonID string) (model.Hairdresser, error) {
+    _, err := db.Exec("UPDATE hairdresser SET hair_salon_id = ? WHERE id = ?", hairSalonID, hairdresserID)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return model.Hairdresser{}, err
+    }
 
-	return updatedHairDresser, nil
+    var updatedHairdresser model.Hairdresser
+    err = db.QueryRow("SELECT id, firstname, lastname, email, start_time, end_time, hair_salon_id FROM hairdresser WHERE id = ?", hairdresserID).Scan(&updatedHairdresser.ID, &updatedHairdresser.Firstname, &updatedHairdresser.Lastname, &updatedHairdresser.Email, &updatedHairdresser.StartTime, &updatedHairdresser.EndTime, &updatedHairdresser.HairSalonID)
+    if err != nil {
+        log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+        return model.Hairdresser{}, err
+    }
+
+    return updatedHairdresser, nil
 }
 
-func DeleteHairDresser(db *sql.DB, id string) (model.Hairdresser, error) {
-	var hairDresser model.Hairdresser
-	err := db.QueryRow("DELETE FROM hairdresser WHERE id = ?", id).Scan(&hairDresser.ID, &hairDresser.Firstname, &hairDresser.Lastname, &hairDresser.Email, &hairDresser.StartTime, &hairDresser.EndTime, &hairDresser.HairSalonID)
+
+
+func DeleteHairdresser(db *sql.DB, id string) (model.Hairdresser, error) {
+	var hairdresser model.Hairdresser
+	err := db.QueryRow("DELETE FROM hairdresser WHERE id = ?", id).Scan(&hairdresser.ID, &hairdresser.Firstname, &hairdresser.Lastname, &hairdresser.Email, &hairdresser.StartTime, &hairdresser.EndTime, &hairdresser.HairSalonID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return model.Hairdresser{}, nil
@@ -109,5 +112,7 @@ func DeleteHairDresser(db *sql.DB, id string) (model.Hairdresser, error) {
 		return model.Hairdresser{}, err
 	}
 
-	return hairDresser, nil
+	return hairdresser, nil
 }
+
+

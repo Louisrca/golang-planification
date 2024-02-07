@@ -5,14 +5,15 @@ import (
 	hairdresser_repository "api-planning/repository"
 	"database/sql"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func FetchHairDresser(db *sql.DB) http.HandlerFunc {
+func FetchHairdresser(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		hairdressers, err := hairdresser_repository.GetHairDresser(db)
+		hairdressers, err := hairdresser_repository.GetHairdresser(db)
 		if err != nil {
 			log.Printf("Erreur lors de la récupération des coiffeurs: %v", err)
 			http.Error(w, http.StatusText(500), 500)
@@ -23,7 +24,7 @@ func FetchHairDresser(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func FetchHairDresserById(db *sql.DB) http.HandlerFunc {
+func FetchHairdresserById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		if id == "" {
@@ -32,7 +33,7 @@ func FetchHairDresserById(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		hairdresser, err := hairdresser_repository.GetHairDresserByID(db, id)
+		hairdresser, err := hairdresser_repository.GetHairdresserByID(db, id)
 		if err != nil {
 			log.Printf("Erreur lors de la récupération du coiffeur: %v", err)
 			http.Error(w, http.StatusText(500), 500)
@@ -43,7 +44,7 @@ func FetchHairDresserById(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func CreateHairDresserHandler(db *sql.DB) http.HandlerFunc {
+func CreateHairdresserHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var hairdresser model.Hairdresser
 
@@ -53,7 +54,7 @@ func CreateHairDresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		hairdresserID, err := hairdresser_repository.CreateHairDresser(db, hairdresser)
+		hairdresserID, err := hairdresser_repository.CreateHairdresser(db, hairdresser)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
@@ -64,36 +65,8 @@ func CreateHairDresserHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func UpdateHairDresserHandler(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		if id == "" {
-			http.Error(w, "ID manquant dans l'URL", http.StatusBadRequest)
-			return
-		}
 
-		var hairdresser model.Hairdresser
-
-		err := json.NewDecoder(r.Body).Decode(&hairdresser)
-		if err != nil {
-			log.Printf("Erreur lors de la récupération du coiffeur: %v", err)
-			http.Error(w, http.StatusText(500), 500)
-			return
-		}
-		hairdresser.ID = id
-
-		updatedHairdresser, err := hairdresser_repository.UpdateHairDresser(db, hairdresser)
-		if err != nil {
-			log.Printf("Erreur lors de la création du coiffeur: %v", err)
-			http.Error(w, http.StatusText(500), 500)
-			return
-		}
-
-		json.NewEncoder(w).Encode(updatedHairdresser)
-	}
-}
-
-func DeleteHairDresserHandler(db *sql.DB) http.HandlerFunc {
+func DeleteHairdresserHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 
@@ -102,7 +75,7 @@ func DeleteHairDresserHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		_, err := hairdresser_repository.DeleteHairDresser(db, id)
+		_, err := hairdresser_repository.DeleteHairdresser(db, id)
 		if err != nil {
 			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
 			return
@@ -112,3 +85,4 @@ func DeleteHairDresserHandler(db *sql.DB) http.HandlerFunc {
 		w.Write([]byte("Coiffeur supprimé avec succès"))
 	}
 }
+
