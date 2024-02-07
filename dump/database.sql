@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `hairdresser` (
     `password` VARCHAR(255),
     `start_time` TIME,
     `end_time` TIME,
-    `hair_salon_id` VARCHAR(36),
+    `hair_salon_id` VARCHAR(36) NULL,
     CONSTRAINT fk_hairdresser_hair_salon FOREIGN KEY (hair_salon_id) REFERENCES hair_salon(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

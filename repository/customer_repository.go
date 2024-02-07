@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	"database/sql"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 func GetCustomer(db *sql.DB) ([]model.Customer, error) {
@@ -39,16 +41,30 @@ func GetCustomerByID(db *sql.DB, id string) (model.Customer, error) {
 	return customer, nil
 }
 
+func GetCustomerByEmail(db *sql.DB, email string) (model.Customer, error) {
+	var customer model.Customer
+	 err := db.QueryRow("SELECT email, password FROM customer WHERE email = ?", email).Scan(&customer.Email, &customer.Password)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return customer, err
+	}
+
+	return customer, nil
+}
+
 func CreateCustomer(db *sql.DB, customer model.Customer) (model.Customer, error) {
 	uuid := uuid.New()
-	_, err := db.Exec("INSERT INTO customer (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)", uuid.String(), customer.Firstname, customer.Lastname, customer.Email, customer.Password)
+
+	hashedPassword := utils.HashPassword(customer.Password)
+	customer.Password = hashedPassword
+
+	_, err := db.Exec("INSERT INTO customer (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)", uuid.String(), customer.Firstname, customer.Lastname, customer.Email, hashedPassword)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 		return model.Customer{}, err
 	}
 
 	customer.ID = uuid.String()
-
 	return customer, nil
 }
 

@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"api-planning/internal/utils"
 	"api-planning/model"
 	"database/sql"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 func GetHairDresser(db *sql.DB) ([]model.Hairdresser, error) {
@@ -38,9 +40,31 @@ func GetHairDresserByID(db *sql.DB, id string) (model.Hairdresser, error) {
 	return hairdresser, nil
 }
 
+func GetHairDresserByEmail(db *sql.DB, email string) (model.Hairdresser, error) {
+	var hairdresser model.Hairdresser
+	err := db.QueryRow("SELECT email, password FROM hairdresser WHERE email = ?", email).Scan(&hairdresser.Email, &hairdresser.Password)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return hairdresser, err
+	}
+
+	return hairdresser, nil
+}
+
 func CreateHairDresser(db *sql.DB, hairDresser model.Hairdresser) (model.Hairdresser, error) {
 	uuid := uuid.New()
-	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.Password, hairDresser.StartTime, hairDresser.EndTime, hairDresser.HairSalonID)
+
+	hashedPassword := utils.HashPassword(hairDresser.Password)
+	hairDresser.Password = hashedPassword
+
+	var hairSalonID sql.NullString
+	if hairDresser.HairSalonID != "" {
+		hairSalonID = sql.NullString{String: hairDresser.HairSalonID, Valid: true}
+	} else {
+		hairSalonID = sql.NullString{Valid: false}
+	}
+
+	_, err := db.Exec("INSERT INTO hairdresser (id, firstname, lastname, email, password, start_time, end_time, hair_salon_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", uuid.String(), hairDresser.Firstname, hairDresser.Lastname, hairDresser.Email, hairDresser.Password, hairDresser.StartTime, hairDresser.EndTime, hairSalonID)
 	if err != nil {
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 		return model.Hairdresser{}, err

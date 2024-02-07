@@ -1,5 +1,10 @@
 package model
 
+type UserCredentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type Admin struct {
 	ID        string `json:"id"`
 	Firstname string `json:"firstname"`
