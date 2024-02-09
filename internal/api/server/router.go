@@ -56,7 +56,8 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	// notification routes
 	notificationRoutes := chi.NewRouter()
 	notificationRoutes.Use(isAuthenticated.AuthMiddleware)
-	//notificationRoutes.Get("/", controller.FetchAdminNotification(db))
+	notificationRoutes.Get("/{id}", controller.FetchNotificationByAdminId(db))
+	r.Mount("/notification", notificationRoutes)
 	//notificationRoutes.Put("/notifications/{id}/read", controller.MarkNotificationAsRead(db))
 
 	// booking routes

@@ -69,3 +69,12 @@ type Booking struct {
 	ServiceID   string `json:"service_id"`
 	SlotID      string `json:"slot_id"`
 }
+
+type Notification struct {
+	ID          string `json:"id"`
+	AdminID     string `json:"admin_id"`
+	Message     string `json:"message"`
+	HairSalonID string `json:"hair_salon_id"`
+	IsRead      bool   `json:"is_read"`
+	CreatedAt   string `json:"created_at"`
+}
