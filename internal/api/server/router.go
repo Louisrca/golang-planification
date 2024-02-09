@@ -94,14 +94,14 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	r.Mount("/hair_salon", hairSalonRoutes)
 
 	// hairdresser routes
-	hairDresserRoutes := chi.NewRouter()
-	hairDresserRoutes.Use(isAuthenticated.AuthMiddleware)
-	hairDresserRoutes.Get("/", controller.FetchHairDresser(db))
-	hairDresserRoutes.Get("/{id}", controller.FetchHairDresserById(db))
-	hairDresserRoutes.Post(("/add"), controller.CreateHairDresserHandler(db))
-	hairDresserRoutes.Put(("/update/{id}"), controller.UpdateHairDresserHandler(db))
-	hairDresserRoutes.Delete(("/delete/{id}"), controller.DeleteHairDresserHandler(db))
-	r.Mount("/hairdresser", hairDresserRoutes)
+	hairdresserRoutes := chi.NewRouter()
+	hairdresserRoutes.Use(isAuthenticated.AuthMiddleware)
+	hairdresserRoutes.Get("/", controller.FetchHairdresser(db))
+	hairdresserRoutes.Get("/{id}", controller.FetchHairdresserById(db))
+	hairdresserRoutes.Post(("/add"), controller.CreateHairdresserHandler(db))
+	// hairdresserRoutes.Put(("/update/{id}"), controller.UpdateHairdresserHandler(db))
+	hairdresserRoutes.Delete(("/delete/{id}"), controller.DeleteHairdresserHandler(db))
+	r.Mount("/hairdresser", hairdresserRoutes)
 
 	// slog routes
 	slogRoutes := chi.NewRouter()

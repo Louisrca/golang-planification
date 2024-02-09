@@ -3,11 +3,14 @@ package controller
 import (
 	"api-planning/model"
 	hair_salon_repository "api-planning/repository"
+	hairdresser_repository "api-planning/repository"
 	"database/sql"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func FetchHairSalon(db *sql.DB) http.HandlerFunc {
@@ -43,25 +46,44 @@ func FetchHairSalonById(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+
 func CreateHairSalonHandler(db *sql.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var hairSalon model.HairSalon
+    return func(w http.ResponseWriter, r *http.Request) {
+        var hairSalon model.HairSalon
+        err := json.NewDecoder(r.Body).Decode(&hairSalon)
+        if err != nil {
+            http.Error(w, "Requête invalide", http.StatusBadRequest)
+            return
+        }
 
-		err := json.NewDecoder(r.Body).Decode(&hairSalon)
-		if err != nil {
-			http.Error(w, "Requête invalide", http.StatusBadRequest)
-			return
-		}
+        hairSalonID, err := hair_salon_repository.CreateHairSalon(db, hairSalon)
+        if err != nil {
+            http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+            return
+        }
 
-		hairSalonID, err := hair_salon_repository.CreateHairSalon(db, hairSalon)
-		if err != nil {
-			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(hairSalonID)
-	}
+        hairdresserID, ok := r.Context().Value("userID").(string)
+		fmt.Println(hairdresserID)
+        if !ok || hairdresserID == "" {
+            http.Error(w, "Unauthorized or missing hairdresser ID", http.StatusUnauthorized)
+            return
+        }
+
+        updatedHairdresser, err := hairdresser_repository.UpdateHairdresser(db, hairdresserID, hairSalonID.ID)
+        if err != nil {
+            log.Printf("Erreur lors de la mise à jour du coiffeur: %v", err)
+            http.Error(w, "Internal server error", http.StatusInternalServerError)
+            return
+        }
+
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "hairSalonID":     hairSalonID,
+            "updatedHairdresser": updatedHairdresser,
+        })
+    }
 }
+
 
 func UpdateHairSalonHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

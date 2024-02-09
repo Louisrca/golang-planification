@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GenerateUserAccessToken(model interface{}, userType string) (string, error) {
+func GenerateUserAccessToken(model interface{}, id string, userType string) (string, error) {
 
 	err := godotenv.Load()
 	if err != nil {
@@ -20,6 +20,7 @@ func GenerateUserAccessToken(model interface{}, userType string) (string, error)
 
 	jwtCreated := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user":     model,
+		"userID": id,
 		"role": userType,
 	})
 

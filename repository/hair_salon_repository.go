@@ -3,8 +3,9 @@ package repository
 import (
 	"api-planning/model"
 	"database/sql"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 func GetHairSalon(db *sql.DB) ([]model.HairSalon, error) {
@@ -38,6 +39,8 @@ func GetHairSalonByID(db *sql.DB, id string) (model.HairSalon, error) {
 	return hairSalon, nil
 }
 
+
+
 func CreateHairSalon(db *sql.DB, hairSalon model.HairSalon) (model.HairSalon, error) {
 	uuid := uuid.New()
 	_, err := db.Exec("INSERT INTO hair_salon (id, name, address, description, is_accepted) VALUES (?, ?, ?, ?, ?)", uuid.String(), hairSalon.Name, hairSalon.Address, hairSalon.Description, hairSalon.IsAccepted)
@@ -45,9 +48,11 @@ func CreateHairSalon(db *sql.DB, hairSalon model.HairSalon) (model.HairSalon, er
 		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 		return model.HairSalon{}, err
 	}
-
 	hairSalon.ID = uuid.String()
 
+	
+
+	
 	return hairSalon, nil
 }
 
