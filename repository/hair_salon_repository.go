@@ -39,8 +39,6 @@ func GetHairSalonByID(db *sql.DB, id string) (model.HairSalon, error) {
 	return hairSalon, nil
 }
 
-
-
 func CreateHairSalon(db *sql.DB, hairSalon model.HairSalon) (model.HairSalon, error) {
 	uuid := uuid.New()
 	_, err := db.Exec("INSERT INTO hair_salon (id, name, address, description, is_accepted) VALUES (?, ?, ?, ?, ?)", uuid.String(), hairSalon.Name, hairSalon.Address, hairSalon.Description, hairSalon.IsAccepted)
@@ -50,9 +48,6 @@ func CreateHairSalon(db *sql.DB, hairSalon model.HairSalon) (model.HairSalon, er
 	}
 	hairSalon.ID = uuid.String()
 
-	
-
-	
 	return hairSalon, nil
 }
 
@@ -91,4 +86,21 @@ func DeleteHairSalon(db *sql.DB, id string) (model.HairSalon, error) {
 	}
 
 	return hairSalon, nil
+}
+
+func AcceptHairSalon(db *sql.DB, id string) (model.HairSalon, error) {
+	_, err := db.Exec("UPDATE hair_salon SET is_accepted = TRUE WHERE id = ?", id)
+	if err != nil {
+		log.Printf("Erreur lors de la mise à jour du salon de coiffure: %v", err)
+		return model.HairSalon{}, err
+	}
+
+	var updatedHairSalon model.HairSalon
+	err = db.QueryRow("SELECT id, name, address, description, is_accepted FROM hair_salon WHERE id = ?", id).Scan(&updatedHairSalon.ID, &updatedHairSalon.Name, &updatedHairSalon.Address, &updatedHairSalon.Description, &updatedHairSalon.IsAccepted)
+	if err != nil {
+		log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+		return model.HairSalon{}, err
+	}
+
+	return updatedHairSalon, nil
 }

@@ -143,3 +143,23 @@ func DeleteHairSalonHandler(db *sql.DB) http.HandlerFunc {
 		w.Write([]byte("Salon de coiffure supprimé avec succès"))
 	}
 }
+
+func AcceptHairSalonHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+
+		if id == "" {
+			http.Error(w, "ID manquant dans la requête", http.StatusBadRequest)
+			return
+		}
+
+		updatedHairSalon, err := hair_salon_repository.AcceptHairSalon(db, id)
+		if err != nil {
+			http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(updatedHairSalon)
+
+	}
+}

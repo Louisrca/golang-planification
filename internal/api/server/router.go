@@ -98,6 +98,7 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	hairSalonRoutes.Post(("/add"), controller.CreateHairSalonHandler(db))
 	hairSalonRoutes.Put(("/update/{id}"), controller.UpdateHairSalonHandler(db))
 	hairSalonRoutes.Delete(("/delete/{id}"), controller.DeleteHairSalonHandler(db))
+	hairSalonRoutes.Put("/accept/{id}", controller.AcceptHairSalonHandler(db))
 	r.Mount("/hair_salon", hairSalonRoutes)
 
 	// hairdresser routes
