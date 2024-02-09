@@ -74,10 +74,12 @@ CREATE TABLE IF NOT EXISTS `notification` (
     `id` VARCHAR(36) PRIMARY KEY,
     `admin_id` VARCHAR(36),
     `message` VARCHAR(255),
+    `hair_salon_id` VARCHAR(36),
     `is_read` BOOLEAN DEFAULT FALSE,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_notification_admin FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE CASCADE ON UPDATE CASCADE
-    );
+    CONSTRAINT fk_notification_admin FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_notification_hair_salon FOREIGN KEY (hair_salon_id) REFERENCES hair_salon(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 INSERT INTO `admin` (`id`, `firstname`, `lastname`, `email`, `password`) VALUES
     ('197f586a-6402-4590-87c3-ceacd4558b22', 'Alex', 'Smith', 'alex.smith@example.com', '123');

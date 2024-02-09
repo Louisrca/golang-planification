@@ -84,7 +84,7 @@ func CreateHairSalonHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		notification_respository.SendNotificationToAdmin(db, admin)
+		notification_respository.SendNotificationToAdmin(db, admin, hairSalonID.ID)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
