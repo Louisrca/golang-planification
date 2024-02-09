@@ -53,6 +53,12 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	adminRoutes.Delete(("/delete/{id}"), controller.DeleteAdminHandler(db))
 	r.Mount("/admin", adminRoutes)
 
+	// notification routes
+	notificationRoutes := chi.NewRouter()
+	notificationRoutes.Use(isAuthenticated.AuthMiddleware)
+	//notificationRoutes.Get("/", controller.FetchAdminNotification(db))
+	//notificationRoutes.Put("/notifications/{id}/read", controller.MarkNotificationAsRead(db))
+
 	// booking routes
 	bookingRoutes := chi.NewRouter()
 	bookingRoutes.Use(isAuthenticated.AuthMiddleware)
