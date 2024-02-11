@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `hair_salon` (
     `name` VARCHAR(255),
     `address` VARCHAR(255),
     `description` VARCHAR(255),
-    `is_accepted` BOOLEAN
+    `is_accepted` BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS `hairdresser` (
@@ -68,6 +68,17 @@ CREATE TABLE IF NOT EXISTS `booking` (
     CONSTRAINT fk_booking_customer FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_booking_service FOREIGN KEY (service_id) REFERENCES service(id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_booking_slot FOREIGN KEY (slot_id) REFERENCES slot(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `notification` (
+    `id` VARCHAR(36) PRIMARY KEY,
+    `admin_id` VARCHAR(36),
+    `message` VARCHAR(255),
+    `hair_salon_id` VARCHAR(36),
+    `is_read` BOOLEAN DEFAULT FALSE,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notification_admin FOREIGN KEY (admin_id) REFERENCES admin(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_notification_hair_salon FOREIGN KEY (hair_salon_id) REFERENCES hair_salon(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 INSERT INTO `admin` (`id`, `firstname`, `lastname`, `email`, `password`) VALUES

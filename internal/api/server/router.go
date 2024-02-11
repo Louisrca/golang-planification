@@ -53,6 +53,13 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	adminRoutes.Delete(("/delete/{id}"), controller.DeleteAdminHandler(db))
 	r.Mount("/admin", adminRoutes)
 
+	// notification routes
+	notificationRoutes := chi.NewRouter()
+	notificationRoutes.Use(isAuthenticated.AuthMiddleware)
+	notificationRoutes.Get("/{id}", controller.FetchNotificationByAdminId(db))
+	r.Mount("/notification", notificationRoutes)
+	//notificationRoutes.Put("/notifications/{id}/read", controller.MarkNotificationAsRead(db))
+
 	// booking routes
 	bookingRoutes := chi.NewRouter()
 	bookingRoutes.Use(isAuthenticated.AuthMiddleware)
@@ -91,6 +98,7 @@ func NewRouter(db *sql.DB) *chi.Mux {
 	hairSalonRoutes.Post(("/add"), controller.CreateHairSalonHandler(db))
 	hairSalonRoutes.Put(("/update/{id}"), controller.UpdateHairSalonHandler(db))
 	hairSalonRoutes.Delete(("/delete/{id}"), controller.DeleteHairSalonHandler(db))
+	hairSalonRoutes.Put("/accept/{id}", controller.AcceptHairSalonHandler(db))
 	r.Mount("/hair_salon", hairSalonRoutes)
 
 	// hairdresser routes
